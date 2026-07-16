@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Committee Admin — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">C</div>
+            <div class="brand-copy">
+                <span class="brand-title">Committee Admin</span>
+                <span class="brand-subtitle">Super Admin</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" id="sidebarNav">
+            <a href="#" class="sidebar-link active" data-view="dashboard">
+                <span class="icon">📊</span> Dashboard
+            </a>
+            <a href="#" class="sidebar-link" data-view="projects">
+                <span class="icon">🏗️</span> Projects
+            </a>
+            <a href="#" class="sidebar-link" data-view="members">
+                <span class="icon">👥</span> Members
+            </a>
+            <a href="#" class="sidebar-link" data-view="notices">
+                <span class="icon">📣</span> Notices &amp; Events
+            </a>
+            <a href="#" class="sidebar-link" data-view="gallery">
+                <span class="icon">🖼️</span> Gallery
+            </a>
+            <a href="#" class="sidebar-link" data-view="donation">
+                <span class="icon">🕌</span> Donation Details
+            </a>
+            <a href="#" class="sidebar-link" data-view="settings">
+                <span class="icon">⚙️</span> Settings &amp; Users
+            </a>
+        </nav>
+
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="admin-main">
+
+        <!-- ===== DASHBOARD VIEW ===== -->
+        <section class="admin-view active" id="view-dashboard">
+            <div class="page-header"><h1 class="page-title">Dashboard</h1></div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-label">Total members</div>
+                    <div class="stat-value">248</div>
+                    <div class="stat-sub positive">+6 this quarter</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Active projects</div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-sub">avg. 38% done</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Completed works</div>
+                    <div class="stat-value">21</div>
+                    <div class="stat-sub">since 1962</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Gallery albums</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-sub">438 photos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Visitors (30d)</div>
+                    <div class="stat-value">4,812</div>
+                    <div class="stat-sub positive">↑ 22%</div>
+                </div>
+            </div>
+
+            <div class="panel-row">
+                <div class="panel">
+                    <div class="panel-title">Recent contact form messages</div>
+                    <div class="message-item">
+                        <div><span class="msg-name">Sunil Agarwal</span> <span class="msg-detail">· Hall booking for wedding — 12 Nov</span></div>
+                        <div class="msg-time">2h ago</div>
+                    </div>
+                    <div class="message-item">
+                        <div><span class="msg-name">Meera Bansal</span> <span class="msg-detail">· 80G receipt not received</span></div>
+                        <div class="msg-time">1d ago</div>
+                    </div>
+                    <div class="message-item">
+                        <div><span class="msg-name">Rajat Khanna</span> <span class="msg-detail">· Volunteer for Janmashtami</span></div>
+                        <div class="msg-time">2d ago</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">Quick actions</div>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" data-goto="notices">+ Publish a notice</button>
+                        <button class="quick-action-btn" data-goto="projects">+ Add project update</button>
+                        <button class="quick-action-btn" data-goto="gallery">+ Upload photos</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <div class="table-section-header">
+                    <h2 class="section-title">Projects</h2>
+                    <button class="btn btn-primary" id="addProjectBtnDash">+ Add project</button>
+                </div>
+                <div class="data-table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Title</th><th>Status</th><th>Progress</th><th>Target</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="projectsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== PROJECTS VIEW ===== -->
+        <section class="admin-view" id="view-projects">
+            <div class="table-section-header" style="margin-bottom:22px;">
+                <h1 class="page-title">Projects</h1>
+                <button class="btn btn-primary" id="addProjectBtn">+ Add project</button>
+            </div>
+            <div class="data-table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Title</th><th>Status</th><th>Progress</th><th>Target</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="projectsTableBody2"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== MEMBERS VIEW ===== -->
+        <section class="admin-view" id="view-members">
+            <p style="font-size:0.9rem;color:var(--color-text-medium);margin-bottom:22px;">Images and documents can be uploaded from the Edit screen. Progress % updates the public progress bar immediately.</p>
+            <div class="table-section-header">
+                <h1 class="page-title">Members</h1>
+                <button class="btn btn-primary" id="addMemberBtn">+ Add member</button>
+            </div>
+
+            <div class="data-table-wrap" style="margin-bottom:26px;">
+                <div class="subtable-label">Executive members · drag ☰ to reorder</div>
+                <table>
+                    <tbody id="execMembersBody"></tbody>
+                </table>
+            </div>
+
+            <div class="data-table-wrap">
+                <div class="subtable-label">
+                    <span id="generalMemberCount">General members (242)</span>
+                    <input type="text" class="table-search" placeholder="Search…" id="memberSearch">
+                </div>
+                <table>
+                    <tbody id="generalMembersBody"></tbody>
+                    <tfoot>
+                        <tr class="show-more-row"><td colspan="4">… 240 more</td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== NOTICES VIEW ===== -->
+        <section class="admin-view" id="view-notices">
+            <div class="table-section-header" style="margin-bottom:22px;">
+                <h1 class="page-title">Notices &amp; Events</h1>
+                <button class="btn btn-primary" id="addNoticeBtn">+ Publish notice</button>
+            </div>
+            <div class="data-table-wrap">
+                <table>
+                    <thead><tr><th>Title</th><th>Type</th><th>Attachment</th><th>Published</th><th>Actions</th></tr></thead>
+                    <tbody id="noticesTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== GALLERY VIEW ===== -->
+        <section class="admin-view" id="view-gallery">
+            <div class="table-section-header" style="margin-bottom:22px;">
+                <h1 class="page-title">Gallery</h1>
+                <button class="btn btn-primary" id="addAlbumBtn">+ New album</button>
+            </div>
+            <div class="gallery-grid" id="galleryGrid"></div>
+        </section>
+
+        <!-- ===== DONATION VIEW ===== -->
+        <section class="admin-view" id="view-donation">
+            <h1 class="page-title" style="margin-bottom:22px;">Donation Details</h1>
+            <div class="form-card">
+                <div class="qr-upload-row">
+                    <div class="qr-placeholder"></div>
+                    <button class="btn btn-outline">↑ Replace QR image</button>
+                </div>
+                <div class="form-group">
+                    <label>UPI ID</label>
+                    <input type="text" class="form-input" placeholder="example@upi" id="upiId">
+                </div>
+                <div class="form-group">
+                    <label>Mobile number</label>
+                    <input type="text" class="form-input" placeholder="+91 XXXXX XXXXX" id="mobileNumber">
+                </div>
+                <div class="form-group">
+                    <label>Account name</label>
+                    <input type="text" class="form-input" placeholder="As per bank records" id="accountName">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Account number</label>
+                        <input type="text" class="form-input" id="accountNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>IFSC</label>
+                        <input type="text" class="form-input" id="ifscCode">
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="saveDonationBtn">Save changes</button>
+            </div>
+        </section>
+
+        <!-- ===== SETTINGS VIEW ===== -->
+        <section class="admin-view" id="view-settings">
+            <h1 class="page-title" style="margin-bottom:22px;">Settings &amp; Users</h1>
+
+            <div class="settings-panel">
+                <div class="settings-panel-header">
+                    <span class="subtable-label" style="padding:0;background:none;border:none;">Admin users</span>
+                    <button class="btn btn-primary btn-sm" id="addUserBtn">+ Add user</button>
+                </div>
+                <div id="adminUsersList"></div>
+            </div>
+
+            <div class="settings-panel">
+                <div class="settings-row">
+                    <div class="settings-row-text">
+                        <strong>Database backup</strong>
+                        <span>Last backup: today, 3:00 AM (automatic daily)</span>
+                    </div>
+                    <div class="settings-row-actions">
+                        <button class="btn btn-outline btn-sm">↓ Download backup</button>
+                        <button class="btn btn-outline btn-sm">↻ Restore</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ============ GENERIC MODAL ============ -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Add item</h3>
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="modalSaveBtn">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ CONFIRM DIALOG (replaces native confirm()) ============ -->
+<div class="modal-overlay" id="confirmOverlay">
+    <div class="modal-card confirm-card">
+        <h3 class="modal-title" id="confirmTitle">Please confirm</h3>
+        <p class="confirm-message" id="confirmMessage"></p>
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="confirmCancelBtn">Cancel</button>
+            <button class="btn btn-danger-solid" id="confirmOkBtn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="javascript/script.js"></script>
+</body>
+</html>

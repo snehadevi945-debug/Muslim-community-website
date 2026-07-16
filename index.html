@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muslim Community - United in Faith, Stronger Together</title>
+    <meta name="description" content="A community built on the pillars of Islam – compassion, service, knowledge, and brotherhood. Join thousands of Muslims living with purpose.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="site-header">
+        <div class="container header-container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 100 100" class="crescent-svg">
+                        <circle cx="50" cy="50" r="45" fill="#116530"/>
+                        <path d="M 62 30 A 24 24 0 1 0 62 70 A 28 28 0 1 1 62 30 Z" fill="#ffffff"/>
+                        <polygon points="56,42 59,48 65,49 61,54 62,60 56,57 50,60 51,54 47,49 53,48" fill="#ffffff"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Muslim</span>
+                    <span class="logo-subtitle">Community</span>
+                </div>
+            </div>
+
+            <!-- Hamburger menu for mobile -->
+            <button class="mobile-nav-toggle" aria-label="Toggle navigation" aria-controls="primary-navigation" aria-expanded="false">
+                <span class="hamburger"></span>
+            </button>
+
+            <nav class="primary-navigation" id="primary-navigation">
+                <ul class="nav-list" role="list">
+                    <li><a href="#hero" class="nav-link active">Home</a></li>
+                    <li><a href="about.html" class="nav-link">About</a></li>
+                    <li><a href="work.html" class="nav-link">Work Progress</a></li>
+                    
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <button class="btn btn-outline-green open-modal-donate" id="header-donate-btn">Donate</button>
+                <button class="btn btn-solid-green open-modal-member" id="header-member-btn">Be a Member</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero">
+            <div class="hero-bg-overlay"></div>
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="bismillah-badge">
+                        <span>BISMILLAH AR-RAHMAN AR-RAHIM</span>
+                    </div>
+                    <h1 class="hero-title">United in Faith,<br>Stronger Together</h1>
+                    <p class="hero-description">
+                        A community built on the pillars of Islam – compassion, service, knowledge, and brotherhood. Join thousands of Muslims living with purpose.
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn btn-solid-white open-modal-member" id="hero-join-btn">Join the Community</button>
+                        <button class="btn btn-solid-gold open-modal-donate" id="hero-donate-btn">Donate Now</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Curve transition -->
+            <div class="wave-divider-container">
+                <svg class="wave-divider" viewBox="0 0 1440 100" preserveAspectRatio="none">
+                    <path d="M0,60 C360,110 720,110 1080,60 C1260,35 1380,45 1440,55 L1440,100 L0,100 Z" fill="#eef7f2"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section" id="stats">
+            <div class="container stats-container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="5000">5,000+</span>
+                        <span class="stat-label">Members</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="120">120+</span>
+                        <span class="stat-label">Events/Year</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="19">19+</span>
+                        <span class="stat-label">Years Serving</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="800">800+</span>
+                        <span class="stat-label">Families Helped</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Who We Are Section -->
+        <section class="about-section" id="about">
+            <div class="container about-container">
+                <div class="about-content">
+                    <span class="section-badge">Who We Are</span>
+                    <h2 class="section-title">A Home for Every Muslim</h2>
+                    <p class="about-text">
+                        Founded in 2005, our Muslim Community Center has been a beacon of faith, learning, and service. We welcome Muslims of all backgrounds and provide a nurturing environment for spiritual growth, education, and community support.
+                    </p>
+                    <p class="about-text">
+                        From Jumu'ah prayers and Quran classes to food drives and youth programs — we are here for every stage of life.
+                    </p>
+                    <a href="#services" class="about-link">Learn more about us <span class="arrow">&rarr;</span></a>
+                </div>
+                <div class="about-image-wrapper">
+                    <img src="assets/who_we_are.png" alt="Muslim Community Center Interior" class="about-image">
+                    <div class="about-image-shadow"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Programs & Services Section -->
+        <section class="services-section" id="services">
+            <div class="container services-container">
+                <div class="services-header">
+                    <span class="section-badge badge-center">What We Offer</span>
+                    <h2 class="section-title title-center">Our Programs & Services</h2>
+                </div>
+
+                <div class="services-grid">
+                    <!-- Card 1 -->
+                    <div class="service-card">
+                        <div class="service-icon-wrapper">
+                            <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <h3 class="service-card-title">Islamic Education</h3>
+                        <p class="service-card-desc">Quran classes, Arabic lessons, and Islamic studies for all ages.</p>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="service-card">
+                        <div class="service-icon-wrapper">
+                            <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="service-card-title">Youth Programs</h3>
+                        <p class="service-card-desc">Mentorship, sports, and leadership activities for Muslim youth.</p>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="service-card">
+                        <div class="service-icon-wrapper">
+                            <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="service-card-title">Community Care</h3>
+                        <p class="service-card-desc">Food pantry, financial aid, and counseling for families in need.</p>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="service-card">
+                        <div class="service-icon-wrapper">
+                            <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                        </div>
+                        <h3 class="service-card-title">Interfaith Dialogue</h3>
+                        <p class="service-card-desc">Bridges of understanding with neighboring faith communities.</p>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div class="service-card">
+                        <div class="service-icon-wrapper">
+                            <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                            </svg>
+                        </div>
+                        <h3 class="service-card-title">Sisters Circle</h3>
+                        <p class="service-card-desc">A dedicated space for Muslimah empowerment and support.</p>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div class="service-card">
+                        <div class="service-icon-wrapper">
+                            <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </div>
+                        <h3 class="service-card-title">Prayer Services</h3>
+                        <p class="service-card-desc">Five daily prayers, Jumu'ah Khutbah, and Ramadan Tarawih.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Support Banner Section -->
+        <section class="support-section" id="progress">
+            <div class="container support-container">
+                <div class="support-banner">
+                    <div class="support-banner-bg"></div>
+                    <div class="support-banner-content">
+                        <div class="support-text-area">
+                            <h2 class="support-title">Scan & donate via UPI &mdash; every rupee accounted for.</h2>
+                            <p class="support-description">
+                                jamamasjidrampur@upi &middot; +91 98765 43210 &middot; Bank details on the donation page
+                            </p>
+                        </div>
+                        <div class="support-right-side">
+                            <div class="qr-block">
+                                <img src="assets/qr_code.png" alt="Scan QR Code to Donate" class="qr-image">
+                            </div>
+                            <div class="support-actions">
+                                <button class="btn btn-solid-gold open-modal-donate" id="support-donate-btn">Donate now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="site-footer" id="contact">
+        <div class="container footer-container">
+            <div class="footer-grid">
+                <!-- Info Column -->
+                <div class="footer-info">
+                    <div class="logo-area logo-light">
+                        <div class="logo-icon">
+                            <svg viewBox="0 0 100 100" class="crescent-svg">
+                                <circle cx="50" cy="50" r="45" fill="#ffffff"/>
+                                <path d="M 62 30 A 24 24 0 1 0 62 70 A 28 28 0 1 1 62 30 Z" fill="#116530"/>
+                                <polygon points="56,42 59,48 65,49 61,54 62,60 56,57 50,60 51,54 47,49 53,48" fill="#116530"/>
+                            </svg>
+                        </div>
+                        <div class="logo-text">
+                            <span class="logo-title">Muslim</span>
+                            <span class="logo-subtitle">Community</span>
+                        </div>
+                    </div>
+                    <p class="footer-desc">
+                        A community built on the pillars of Islam – compassion, service, knowledge, and brotherhood. Together, we strive to build a better future.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook" class="social-link">
+                            <svg fill="currentColor" viewBox="0 0 24 24" class="social-icon"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg>
+                        </a>
+                        <a href="#" aria-label="Twitter" class="social-link">
+                            <svg fill="currentColor" viewBox="0 0 24 24" class="social-icon"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                        </a>
+                        <a href="#" aria-label="Instagram" class="social-link">
+                            <svg fill="currentColor" viewBox="0 0 24 24" class="social-icon"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        </a>
+                        <a href="#" aria-label="YouTube" class="social-link">
+                            <svg fill="currentColor" viewBox="0 0 24 24" class="social-icon"><path d="M23.498 6.163a3.003 3.003 0 00-2.11-2.11C19.518 3.545 12 3.545 12 3.545s-7.518 0-9.388.507a3.003 3.003 0 00-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 002.11 2.11c1.87.507 9.388.507 9.388.507s7.518 0 9.388-.507a3.003 3.003 0 002.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Navigation Column -->
+                <div class="footer-nav">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#services">Programs & Services</a></li>
+                        <li><a href="work.html">Work Progress</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Column -->
+                <div class="footer-contact">
+                    <h4 class="footer-title">Contact Us</h4>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <svg class="contact-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>123 Community St, Green Town, GT 54321</span>
+                        </li>
+                        <li>
+                            <svg class="contact-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li>
+                            <svg class="contact-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>info@muslimcommunity.org</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 Muslim Community. All rights reserved. Built with devotion and care.
+                    <br>
+                    Developed By Zetawa Dark Private Limited
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals for Donate and Membership -->
+    <div class="modal-overlay" id="donate-modal">
+        <div class="modal-card">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <h3 class="modal-title">Make a Contribution</h3>
+            <p class="modal-desc">Your charity (Sadaqah) supports education, food drives, and community care programs.</p>
+            
+            <form class="modal-form" id="donate-form" onsubmit="event.preventDefault(); alert('JazakAllahu Khairan! Thank you for your donation.'); document.getElementById('donate-modal').classList.remove('active');">
+                <div class="form-group">
+                    <label>Select Amount</label>
+                    <div class="amount-presets">
+                        <button type="button" class="preset-btn active" data-val="50">$50</button>
+                        <button type="button" class="preset-btn" data-val="100">$100</button>
+                        <button type="button" class="preset-btn" data-val="250">$250</button>
+                        <button type="button" class="preset-btn" data-val="500">$500</button>
+                        <button type="button" class="preset-btn" data-val="custom">Custom</button>
+                    </div>
+                    <input type="number" id="custom-amount" class="form-input amount-input" placeholder="Enter custom amount ($)" min="5" value="50" style="display:none;">
+                </div>
+                
+                <div class="form-group">
+                    <label for="donate-name">Full Name</label>
+                    <input type="text" id="donate-name" class="form-input" placeholder="Your Name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="donate-email">Email Address</label>
+                    <input type="email" id="donate-email" class="form-input" placeholder="email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="donate-type">Donation Frequency</label>
+                    <select id="donate-type" class="form-input">
+                        <option value="one-time">One-time donation</option>
+                        <option value="monthly">Monthly recurring</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-solid-green w-full">Complete Donation</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="member-modal">
+        <div class="modal-card">
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+            <h3 class="modal-title">Become a Member</h3>
+            <p class="modal-desc">Join our growing community, get access to classes, and participate in decision-making.</p>
+            
+            <form class="modal-form" id="member-form" onsubmit="event.preventDefault(); alert('Welcome to the Muslim Community! JazakAllahu Khairan for joining us.'); document.getElementById('member-modal').classList.remove('active');">
+                <div class="form-group">
+                    <label for="member-name">Full Name</label>
+                    <input type="text" id="member-name" class="form-input" placeholder="Your Name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="member-email">Email Address</label>
+                    <input type="email" id="member-email" class="form-input" placeholder="email@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="member-phone">Phone Number</label>
+                    <input type="tel" id="member-phone" class="form-input" placeholder="+1 (555) 000-0000" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="member-interest">Primary Area of Interest</label>
+                    <select id="member-interest" class="form-input">
+                        <option value="classes">Islamic Classes & Education</option>
+                        <option value="volunteering">Volunteering & Community Service</option>
+                        <option value="youth">Youth Programs & Mentorship</option>
+                        <option value="events">Attending Community Events</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-solid-green w-full">Submit Membership Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="javascript/app.js"></script>
+</body>
+</html>
