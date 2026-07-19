@@ -5,12 +5,8 @@
    ========================================================== */
 
 /* ---------- Sample data ---------- */
-let projects = [
-    { id: 1, title: "Minaret restoration & new dome", status: "Active", progress: 68, target: "Nov 2026" },
-    { id: 2, title: "Madrasa — 8 new classrooms", status: "Active", progress: 35, target: "Aug 2027" },
-    { id: 3, title: "Langar kitchen upgrade", status: "Active", progress: 12, target: "Dec 2026" },
-    { id: 4, title: "Community hall roof repair", status: "Completed", progress: 100, target: "Jun 2026" },
-];
+let projects = [];
+const API_URL = "http://localhost:3000/api/projects";
 
 let execMembers = [
     { id: 1, name: "Abdul Rahman Khan", role: "President", phone: "+91 98765 43210", email: "president@…org", joining: "2015-03-01" },
@@ -365,31 +361,75 @@ function fieldHtml(label, id, value = '', type = 'text') {
 /* Add / edit project */
 function openProjectModal(existing) {
     const isEdit = !!existing;
-    openModal(isEdit ? 'Edit project' : 'Add project', `
+
+    openModal(
+        isEdit ? "Edit project" : "Add project",
+        `
         ${fieldHtml('Title', 'f_title', existing ? existing.title : '')}
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-input" id="f_description">${
+                existing ? (existing.description || "") : ""
+            }</textarea>
+        </div>
+
         <div class="form-group">
             <label>Status</label>
             <select class="form-input" id="f_status">
-                <option ${existing && existing.status === 'Active' ? 'selected' : ''}>Active</option>
-                <option ${existing && existing.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                <option ${existing && existing.status === "Active" ? "selected" : ""}>Active</option>
+                <option ${existing && existing.status === "Completed" ? "selected" : ""}>Completed</option>
             </select>
         </div>
+
         ${fieldHtml('Progress %', 'f_progress', existing ? existing.progress : 0, 'number')}
         ${fieldHtml('Target', 'f_target', existing ? existing.target : '')}
-    `, () => {
-        const title = document.getElementById('f_title').value.trim() || 'Untitled project';
-        const status = document.getElementById('f_status').value;
-        const progress = Number(document.getElementById('f_progress').value) || 0;
-        const target = document.getElementById('f_target').value.trim() || 'TBD';
-        if (isEdit) {
-            Object.assign(existing, { title, status, progress, target });
-            showToast('Project updated');
-        } else {
-            projects.push({ id: uid(projects), title, status, progress, target });
-            showToast('Project added');
+        `,
+        () => {
+
+            const title = document.getElementById("f_title").value.trim() || "Untitled project";
+            const description = document.getElementById("f_description").value.trim();
+            const status = document.getElementById("f_status").value;
+            const progress = Number(document.getElementById("f_progress").value) || 0;
+            const target = document.getElementById("f_target").value.trim() || "TBD";
+
+            if (isEdit) {
+
+                Object.assign(existing, {
+                    title,
+                    description,
+                    status,
+                    progress,
+                    target
+                });
+
+                showToast("Project updated");
+
+            } else {
+
+                fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        status,
+                        progress,
+                        target
+                    })
+                })
+                .then(res => res.json())
+                .then(() => {
+                    showToast("Project Added");
+                    fetchProjects();
+                });
+
+            }
+
         }
-        renderProjects();
-    });
+    );
 }
 document.getElementById('addProjectBtnDash').addEventListener('click', () => openProjectModal(null));
 document.getElementById('addProjectBtn').addEventListener('click', () => openProjectModal(null));
@@ -655,7 +695,18 @@ document.getElementById('saveDonationBtn').addEventListener('click', () => {
 });
 
 /* ---------- Init ---------- */
-renderProjects();
+async function fetchProjects() {
+    try {
+        const response = await fetch(API_URL);
+        projects = await response.json();
+
+        renderProjects();
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+fetchProjects();
 renderExecMembers();
 renderGeneralMembers();
 renderNotices();

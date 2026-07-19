@@ -1,12 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const Notice = require("../Muslim-community-website/AdminPanel/models/Notice");
+const Notice = require("./AdminPanel/models/Notice");
+const Project = require("./AdminPanel/models/projects");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 const PORT = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Connect MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/muslim_community")
@@ -65,4 +69,27 @@ app.delete("/api/notices/:id", async (req, res) => {
 });
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
+});
+
+//Projects
+app.get("/api/projects", async (req, res) => {
+    try {
+        const projects = await Project.find();
+        res.json(projects);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+app.post("/api/projects", async (req, res) => {
+    console.log("Request Body:", req.body);
+
+    try {
+        const project = new Project(req.body);
+        await project.save();
+        res.status(201).json(project);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
 });
