@@ -84,7 +84,7 @@ function statusClass(status) {
 
 function renderProjects() {
     const rowsHtml = projects.map(p => `
-        <tr data-id="${p.id}">
+        <tr data-id="${p._id}">
             <td class="cell-title">${p.title}</td>
             <td><span class="status-pill ${statusClass(p.status)}">${p.status}</span></td>
             <td>${p.progress}%</td>
@@ -95,13 +95,23 @@ function renderProjects() {
             </td>
         </tr>`).join('');
     document.getElementById('projectsTableBody').innerHTML = rowsHtml;
-    document.getElementById('projectsTableBody2').innerHTML = rowsHtml;
+    const rowsHtml2 = projects.map(p => `
+    <tr data-id="${p._id}">
+        <td>${p.title}</td>
+        <td>${p.status}</td>
+        <td>${p.progress}%</td>
+        <td>${p.icon || "🏢"}</td>
+        <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+    </tr>
+    `).join("");
+
+document.getElementById("projectsTableBody2").innerHTML = rowsHtml2;
 
     document.querySelectorAll('.delete-project').forEach(btn => {
         btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
+            const id = e.target.closest("tr").dataset.id;
             confirmAction('Delete this project? This cannot be undone.', () => {
-                projects = projects.filter(p => p.id !== id);
+                projects = projects.filter(p => p._id !== id);
                 renderProjects();
                 showToast('Project deleted');
             });
@@ -109,8 +119,8 @@ function renderProjects() {
     });
     document.querySelectorAll('.edit-project').forEach(btn => {
         btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            openProjectModal(projects.find(p => p.id === id));
+           const id = e.target.closest("tr").dataset.id;
+            openProjectModal(projects.find(p => p._id === id));
         });
     });
 }
@@ -395,15 +405,26 @@ function openProjectModal(existing) {
 
             if (isEdit) {
 
-                Object.assign(existing, {
-                    title,
-                    description,
-                    status,
-                    progress,
-                    target
-                });
+              fetch(`${API_URL}/${existing._id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title,
+            description,
+            status,
+            progress,
+            target
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        showToast("Project updated");
+        fetchProjects();
+    })
+    .catch(err => console.error(err));
 
-                showToast("Project updated");
 
             } else {
 

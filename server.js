@@ -93,3 +93,18 @@ app.post("/api/projects", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+//Edit projects
+app.put("/api/projects/:id", async (req, res) => {
+    try {
+        const updatedProject = await Project.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        res.json(updatedProject);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
