@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const Notice = require("./AdminPanel/models/Notice");
 const Project = require("./AdminPanel/models/projects");
+const Member = require("./AdminPanel/models/members");
+const Gallery = require("./AdminPanel/models/gallery");
+const Donation = require("./AdminPanel/models/donation");
 
 const app = express();
 app.use(cors());
@@ -13,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/muslim_community")
+mongoose.connect("mongodb://127.0.0.1:27017/muslim-community-website")
 .then(() => {
     console.log("✅ MongoDB Connected");
 })
@@ -23,7 +26,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/muslim_community")
 
 // Home Route
 app.get("/", (req, res) => {
-    res.send("Hello Sneha! MongoDB Connected Successfully.");
+    res.send("Hello! MongoDB Connected Successfully.");
 });
 // Get all notices
 app.get("/api/notices", async (req, res) => {
@@ -91,5 +94,143 @@ app.post("/api/projects", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
+    }
+});
+
+// Get all members
+app.get("/api/members", async (req, res) => {
+    try {
+        const members = await Member.find();
+        res.json(members);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Create a member
+app.post("/api/members", async (req, res) => {
+    try {
+        const member = new Member(req.body);
+        await member.save();
+        res.status(201).json(member);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update a member
+app.put("/api/members/:id", async (req, res) => {
+    try {
+        const updatedMember = await Member.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        res.json(updatedMember);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Delete a member
+app.delete("/api/members/:id", async (req, res) => {
+    try {
+        await Member.findByIdAndDelete(req.params.id);
+        res.json({ message: "Member deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get all albums
+app.get("/api/gallery", async (req, res) => {
+    try {
+        const gallery = await Gallery.find();
+        res.json(gallery);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Create album
+app.post("/api/gallery", async (req, res) => {
+    try {
+        const album = new Gallery(req.body);
+        await album.save();
+        res.status(201).json(album);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update album
+app.put("/api/gallery/:id", async (req, res) => {
+    try {
+        const updatedAlbum = await Gallery.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        res.json(updatedAlbum);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Delete album
+app.delete("/api/gallery/:id", async (req, res) => {
+    try {
+        await Gallery.findByIdAndDelete(req.params.id);
+        res.json({ message: "Album deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get donation details
+app.get("/api/donations", async (req, res) => {
+    try {
+        const donation = await Donation.findOne();
+        res.json(donation);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Create donation details (run once)
+app.post("/api/donations", async (req, res) => {
+    try {
+        const donation = new Donation(req.body);
+        await donation.save();
+        res.status(201).json(donation);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update donation details
+app.put("/api/donations/:id", async (req, res) => {
+    try {
+        const updatedDonation = await Donation.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+
+        res.json(updatedDonation);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Delete donation details
+app.delete("/api/donations/:id", async (req, res) => {
+    try {
+        await Donation.findByIdAndDelete(req.params.id);
+        res.json({ message: "Donation details deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });

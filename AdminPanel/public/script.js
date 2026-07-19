@@ -7,12 +7,10 @@
 /* ---------- Sample data ---------- */
 let projects = [];
 const API_URL = "http://localhost:3000/api/projects";
+const MEMBER_API = "http://localhost:3000/api/members";
 
-let execMembers = [
-    { id: 1, name: "Abdul Rahman Khan", role: "President", phone: "+91 98765 43210", email: "president@…org", joining: "2015-03-01" },
-    { id: 2, name: "Mohammed Yusuf", role: "Vice President", phone: "+91 90123 44556", email: "vp@…org", joining: "2017-06-15" },
-    { id: 3, name: "Imran Siddiqui", role: "Secretary", phone: "+91 91234 56780", email: "secretary@…org", joining: "2018-01-10" },
-];
+let execMembers = [];
+
 
 let generalMembers = [
     { id: 1, name: "Iqbal Hussain", phone: "+91 98111 22334", joining: "2018-03-01" },
@@ -116,39 +114,102 @@ function renderProjects() {
 }
 
 function renderExecMembers() {
-    document.getElementById('execMembersBody').innerHTML = execMembers.map(m => `
-        <tr data-id="${m.id}">
-            <td style="width:36px;"><span class="drag-handle">☰</span></td>
-            <td class="cell-title">${m.name} — ${m.role}</td>
-            <td>${m.phone}</td>
-            <td>${m.email}</td>
-            <td>${formatSince(m.joining)}</td>
-            <td class="row-actions">
-                <button class="btn btn-outline btn-sm edit-exec">Edit</button>
-                <button class="btn btn-danger-outline btn-sm delete-exec">Delete</button>
+
+    const tbody = document.getElementById("execMembersBody");
+
+    tbody.innerHTML = execMembers.map(member => `
+        <tr data-id="${member._id}">
+            <td style="width:36px;">
+                <span class="drag-handle">☰</span>
             </td>
-        </tr>`).join('');
 
-    document.querySelectorAll('.edit-exec').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            openMemberModal(execMembers.find(m => m.id === id), 'exec');
+            <td class="cell-title">
+                ${member.fullName || member.name} — ${member.role}
+            </td>
+
+            <td>${member.phone}</td>
+
+            <td>${member.email}</td>
+
+            <td>${formatSince(member.dateOfJoining ||member.joining)}</td>
+
+            <td class="row-actions">
+                <button class="btn btn-outline btn-sm edit-exec">
+                    Edit
+                </button>
+
+                <button class="btn btn-danger-outline btn-sm delete-exec">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    `).join("");
+
+
+
+    // Edit
+
+    document.querySelectorAll(".edit-exec").forEach(button => {
+
+        button.addEventListener("click", e => {
+
+            const id = e.target.closest("tr").dataset.id;
+
+            const member = execMembers.find(m => m._id === id);
+
+            openMemberModal(member, "exec");
+
         });
+
     });
 
-    document.querySelectorAll('.delete-exec').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            const member = execMembers.find(m => m.id === id);
-            confirmAction(`Remove ${member ? member.name : 'this'} from executive members?`, () => {
-                execMembers = execMembers.filter(m => m.id !== id);
-                renderExecMembers();
-                showToast('Member removed');
-            });
+
+
+    // Delete
+
+    document.querySelectorAll(".delete-exec").forEach(button => {
+
+        button.addEventListener("click", e => {
+
+            const id = e.target.closest("tr").dataset.id;
+
+            const member = execMembers.find(m => m._id === id);
+
+            confirmAction(
+
+                `Remove ${member.name} from executive members?`,
+
+                async () => {
+
+                    try {
+
+                        await fetch(`${MEMBER_API}/${id}`, {
+
+                            method: "DELETE"
+
+                        });
+
+                        showToast("Member removed");
+
+                        fetchMembers();
+
+                    }
+
+                    catch(err){
+
+                        console.error(err);
+
+                    }
+
+                }
+
+            );
+
         });
+
     });
+
 }
-
 function renderGeneralMembers(filter = '') {
     const filtered = generalMembers.filter(m =>
         m.name.toLowerCase().includes(filter.toLowerCase())
@@ -436,40 +497,145 @@ document.getElementById('addProjectBtn').addEventListener('click', () => openPro
 
 /* Add / edit member (exec or general) */
 function openMemberModal(existing, kind) {
+
     const isEdit = !!existing;
     const todayIso = new Date().toISOString().slice(0, 10);
-    openModal(isEdit ? 'Edit member' : 'Add member', `
-        ${fieldHtml('Full name', 'm_name', existing ? existing.name : '')}
-        ${fieldHtml('Role (leave blank for general member)', 'm_role', existing && existing.role ? existing.role : '')}
-        ${fieldHtml('Phone', 'm_phone', existing ? existing.phone : '')}
-        ${kind !== 'general' ? fieldHtml('Email', 'm_email', existing ? existing.email : '') : ''}
-        ${fieldHtml('Date of joining', 'm_joining', existing && existing.joining ? existing.joining : todayIso, 'date')}
-    `, () => {
-        const name = document.getElementById('m_name').value.trim() || 'Unnamed member';
-        const role = document.getElementById('m_role').value.trim();
-        const phone = document.getElementById('m_phone').value.trim() || '—';
-        const joining = document.getElementById('m_joining').value || todayIso;
-        const emailField = document.getElementById('m_email');
-        const email = emailField ? (emailField.value.trim() || '—') : (existing ? existing.email : '—');
 
-        if (isEdit) {
-            Object.assign(existing, { name, phone, joining });
-            if (kind === 'exec') { existing.role = role || existing.role; existing.email = email; }
-            renderExecMembers();
-            renderGeneralMembers(document.getElementById('memberSearch').value);
-            showToast('Member updated');
-        } else if (role) {
-            execMembers.push({ id: uid(execMembers), name, role, phone, email, joining });
-            renderExecMembers();
-            showToast('Member added');
-        } else {
-            generalMembers.push({ id: uid(generalMembers), name, phone, joining });
-            renderGeneralMembers();
-            showToast('Member added');
+    openModal(
+        isEdit ? "Edit member" : "Add member",
+
+        `
+        ${fieldHtml("Full name", "m_name", existing ? existing.name : "")}
+        ${fieldHtml("Role (leave blank for general member)", "m_role", existing && existing.role ? existing.role : "")}
+        ${fieldHtml("Phone", "m_phone", existing ? existing.phone : "")}
+        ${kind !== "general" ? fieldHtml("Email", "m_email", existing ? existing.email : "") : ""}
+        ${fieldHtml("Date of joining", "m_joining", existing && existing.joining ? existing.joining.slice(0,10) : todayIso, "date")}
+        `,
+
+        async () => {
+
+            const name = document.getElementById("m_name").value.trim() || "Unnamed member";
+            const role = document.getElementById("m_role").value.trim();
+            const phone = document.getElementById("m_phone").value.trim() || "—";
+            const joining = document.getElementById("m_joining").value || todayIso;
+
+            const emailField = document.getElementById("m_email");
+
+            const email = emailField
+                ? emailField.value.trim() || "—"
+                : existing
+                    ? existing.email
+                    : "—";
+
+
+
+            // ===========================
+            // EXECUTIVE MEMBERS (DATABASE)
+            // ===========================
+
+            if (kind === "exec" || role) {
+
+                try {
+
+                    if (isEdit) {
+
+                        await fetch(`${MEMBER_API}/${existing._id}`, {
+
+                            method: "PUT",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                name,
+                                role,
+                                phone,
+                                email,
+                                joining
+                            })
+
+                        });
+
+                        showToast("Member updated");
+
+                    } else {
+
+                        await fetch(MEMBER_API, {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                name,
+                                role,
+                                phone,
+                                email,
+                                joining
+                            })
+
+                        });
+
+                        showToast("Member added");
+
+                    }
+
+                    fetchMembers();
+
+                }
+                catch (err) {
+
+                    console.error(err);
+
+                }
+
+            }
+
+            // ===========================
+            // GENERAL MEMBERS (LOCAL)
+            // ===========================
+
+            else {
+
+                if (isEdit) {
+
+                    Object.assign(existing, {
+                        name,
+                        phone,
+                        joining
+                    });
+
+                    renderGeneralMembers(document.getElementById("memberSearch").value);
+
+                    showToast("Member updated");
+
+                } else {
+
+                    generalMembers.push({
+                        id: uid(generalMembers),
+                        name,
+                        phone,
+                        joining
+                    });
+
+                    renderGeneralMembers();
+
+                    showToast("Member added");
+
+                }
+
+            }
+
         }
-    });
+
+    );
+
 }
-document.getElementById('addMemberBtn').addEventListener('click', () => openMemberModal(null, 'new'));
+
+document.getElementById("addMemberBtn").addEventListener("click", () => openMemberModal(null, "new"));
 
 /* Add / edit notice */
 function openNoticeModal(existing) {
@@ -706,8 +872,24 @@ async function fetchProjects() {
         console.error(err);
     }
 }
+
+async function fetchMembers() {
+    try {
+
+        const response = await fetch(MEMBER_API);
+
+        execMembers = await response.json();
+
+        renderExecMembers();
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+}
 fetchProjects();
-renderExecMembers();
+fetchMembers();
 renderGeneralMembers();
 renderNotices();
 renderAlbums();
