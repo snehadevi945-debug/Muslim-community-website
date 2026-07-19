@@ -23,12 +23,21 @@ let generalMembers = [
     { id: 2, name: "Ayesha Begum", phone: "+91 99220 11445", joining: "2021-07-01" },
 ];
 
-let notices = [
-    { id: 1, title: "Ramzan taraweeh schedule", description: "Daily taraweeh prayer timings for the month of Ramzan, updated weekly based on moon sighting.", fileName: "taraweeh_schedule.pdf", fileUrl: "", type: "Notice", published: "12 Jul 2026" },
-    { id: 2, title: "Raksha Bandhan Langar", description: "Community langar organised on the occasion of Raksha Bandhan, open to all members and neighbours.", fileName: "", fileUrl: "", type: "Event", published: "05 Jul 2026" },
-    { id: 3, title: "AGM notice", description: "Annual General Meeting notice with agenda items for review of accounts and elections.", fileName: "agm_notice.pdf", fileUrl: "", type: "Notice", published: "02 Jul 2026" },
-];
+let notices = [];
 
+async function loadNotices() {
+    try {
+        const response = await fetch("http://localhost:3000/api/notices");
+        notices = await response.json();
+
+        // Refresh the UI after loading the data
+        renderNotices();   // <-- change this if your display function has a different name
+    } catch (error) {
+        console.error("Error loading notices:", error);
+    }
+}
+
+loadNotices();
 let albums = [
     { id: 1, title: "Ramzan & Eid 2026", files: Array.from({ length: 86 }, (_, i) => `photo_${i + 1}.jpg`) },
     { id: 2, title: "Minaret work progress", files: Array.from({ length: 44 }, (_, i) => `progress_${i + 1}.jpg`) },
@@ -195,15 +204,15 @@ document.getElementById('memberSearch').addEventListener('input', e => {
 
 function renderNotices() {
     document.getElementById('noticesTableBody').innerHTML = notices.map(n => `
-        <tr data-id="${n.id}">
+       <tr data-id="${n._id}">
             <td class="cell-title">${n.title}</td>
             <td>${n.type}</td>
             <td>
-                ${n.fileName
-                    ? `<button type="button" class="attachment-link open-attachment" title="Open ${n.fileName}">${fileTypeIcon(n.fileName)} ${n.fileName}</button>`
+                ${n.attachment
+                    ? `<button type="button" class="attachment-link open-attachment" title="Open ${n.attachment}">${fileTypeIcon(n.attachment)} ${n.attachment}</button>`
                     : `<span class="no-attachment">— none —</span>`}
             </td>
-            <td>${n.published}</td>
+            <td>${n.publishedDate}</td>
             <td class="row-actions">
                 <button class="btn btn-outline btn-sm edit-notice">Edit</button>
                 <button class="btn btn-danger-outline btn-sm delete-notice">Delete</button>
@@ -213,27 +222,43 @@ function renderNotices() {
     document.querySelectorAll('.open-attachment').forEach(btn => {
         btn.addEventListener('click', e => {
             const id = Number(e.target.closest('tr').dataset.id);
-            const notice = notices.find(n => n.id === id);
+            const notice = notices.find(n => n._id == id);
             openAttachment(notice);
         });
     });
 
     document.querySelectorAll('.edit-notice').forEach(btn => {
         btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            openNoticeModal(notices.find(n => n.id === id));
+    
+            const id = e.target.closest('tr').dataset.id;
+    
+            console.log("Clicked ID:", id);
+    
+            const notice = notices.find(n => n._id === id);
+    
+            console.log("Found notice:", notice);
+    
+            openNoticeModal(notice);
         });
     });
 
     document.querySelectorAll('.delete-notice').forEach(btn => {
         btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            const notice = notices.find(n => n.id === id);
+            const id = e.target.closest('tr').dataset.id;
+            const notice = notices.find(n => n._id == id);
             confirmAction(`Delete "${notice ? notice.title : 'this notice'}"? This cannot be undone.`, () => {
                 if (notice && notice.fileUrl) URL.revokeObjectURL(notice.fileUrl);
-                notices = notices.filter(n => n.id !== id);
-                renderNotices();
-                showToast('Notice deleted');
+                fetch(`http://localhost:3000/api/notices/${id}`, {
+                    method: "DELETE"
+                })
+                .then(() => {
+                    loadNotices();   // Reload notices from MongoDB
+                    showToast("Notice deleted successfully");
+                })
+                .catch(error => {
+                    console.error(error);
+                    showToast("Failed to delete notice");
+                });
             });
         });
     });
@@ -469,17 +494,44 @@ function openNoticeModal(existing) {
             fileUrl = URL.createObjectURL(newFile);
         }
 
+        const noticeData = {
+            title,
+            description,
+            fileName,
+            fileUrl,
+            type,
+            published: new Date().toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            })
+        };
+        
         if (isEdit) {
-            Object.assign(existing, { title, type, description, fileName, fileUrl });
-            showToast('Notice updated');
-        } else {
-            notices.unshift({
-                id: uid(notices), title, type, description, fileName, fileUrl,
-                published: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+            fetch(`http://localhost:3000/api/notices/${existing._id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(noticeData)
+            })
+            .then(() => {
+                loadNotices();
+                showToast("Notice updated");
             });
-            showToast('Notice published');
+        } else {
+            fetch("http://localhost:3000/api/notices", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(noticeData)
+            })
+            .then(() => {
+                loadNotices();
+                showToast("Notice published");
+            });
         }
-        renderNotices();
     });
 }
 document.getElementById('addNoticeBtn').addEventListener('click', () => openNoticeModal(null));
