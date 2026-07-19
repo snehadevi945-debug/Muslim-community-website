@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const Notice = require("./models/Notice");
+const Notice = require("../Muslim-community-website/AdminPanel/models/Notice");
 
 const app = express();
 app.use(cors());
