@@ -23,21 +23,12 @@ let generalMembers = [
     { id: 2, name: "Ayesha Begum", phone: "+91 99220 11445", joining: "2021-07-01" },
 ];
 
-let notices = [];
+let notices = [
+    { id: 1, title: "Ramzan taraweeh schedule", description: "Daily taraweeh prayer timings for the month of Ramzan, updated weekly based on moon sighting.", fileName: "taraweeh_schedule.pdf", fileUrl: "", type: "Notice", published: "12 Jul 2026" },
+    { id: 2, title: "Raksha Bandhan Langar", description: "Community langar organised on the occasion of Raksha Bandhan, open to all members and neighbours.", fileName: "", fileUrl: "", type: "Event", published: "05 Jul 2026" },
+    { id: 3, title: "AGM notice", description: "Annual General Meeting notice with agenda items for review of accounts and elections.", fileName: "agm_notice.pdf", fileUrl: "", type: "Notice", published: "02 Jul 2026" },
+];
 
-async function loadNotices() {
-    try {
-        const response = await fetch("http://localhost:3000/api/notices");
-        notices = await response.json();
-
-        // Refresh the UI after loading the data
-        renderNotices();   // <-- change this if your display function has a different name
-    } catch (error) {
-        console.error("Error loading notices:", error);
-    }
-}
-
-loadNotices();
 let albums = [
     { id: 1, title: "Ramzan & Eid 2026", files: Array.from({ length: 86 }, (_, i) => `photo_${i + 1}.jpg`) },
     { id: 2, title: "Minaret work progress", files: Array.from({ length: 44 }, (_, i) => `progress_${i + 1}.jpg`) },
@@ -204,15 +195,15 @@ document.getElementById('memberSearch').addEventListener('input', e => {
 
 function renderNotices() {
     document.getElementById('noticesTableBody').innerHTML = notices.map(n => `
-       <tr data-id="${n._id}">
+        <tr data-id="${n.id}">
             <td class="cell-title">${n.title}</td>
             <td>${n.type}</td>
             <td>
-                ${n.attachment
-                    ? `<button type="button" class="attachment-link open-attachment" title="Open ${n.attachment}">${fileTypeIcon(n.attachment)} ${n.attachment}</button>`
+                ${n.fileName
+                    ? `<button type="button" class="attachment-link open-attachment" title="Open ${n.fileName}">${fileTypeIcon(n.fileName)} ${n.fileName}</button>`
                     : `<span class="no-attachment">— none —</span>`}
             </td>
-            <td>${n.publishedDate}</td>
+            <td>${n.published}</td>
             <td class="row-actions">
                 <button class="btn btn-outline btn-sm edit-notice">Edit</button>
                 <button class="btn btn-danger-outline btn-sm delete-notice">Delete</button>
@@ -222,43 +213,27 @@ function renderNotices() {
     document.querySelectorAll('.open-attachment').forEach(btn => {
         btn.addEventListener('click', e => {
             const id = Number(e.target.closest('tr').dataset.id);
-            const notice = notices.find(n => n._id == id);
+            const notice = notices.find(n => n.id === id);
             openAttachment(notice);
         });
     });
 
     document.querySelectorAll('.edit-notice').forEach(btn => {
         btn.addEventListener('click', e => {
-    
-            const id = e.target.closest('tr').dataset.id;
-    
-            console.log("Clicked ID:", id);
-    
-            const notice = notices.find(n => n._id === id);
-    
-            console.log("Found notice:", notice);
-    
-            openNoticeModal(notice);
+            const id = Number(e.target.closest('tr').dataset.id);
+            openNoticeModal(notices.find(n => n.id === id));
         });
     });
 
     document.querySelectorAll('.delete-notice').forEach(btn => {
         btn.addEventListener('click', e => {
-            const id = e.target.closest('tr').dataset.id;
-            const notice = notices.find(n => n._id == id);
+            const id = Number(e.target.closest('tr').dataset.id);
+            const notice = notices.find(n => n.id === id);
             confirmAction(`Delete "${notice ? notice.title : 'this notice'}"? This cannot be undone.`, () => {
                 if (notice && notice.fileUrl) URL.revokeObjectURL(notice.fileUrl);
-                fetch(`http://localhost:3000/api/notices/${id}`, {
-                    method: "DELETE"
-                })
-                .then(() => {
-                    loadNotices();   // Reload notices from MongoDB
-                    showToast("Notice deleted successfully");
-                })
-                .catch(error => {
-                    console.error(error);
-                    showToast("Failed to delete notice");
-                });
+                notices = notices.filter(n => n.id !== id);
+                renderNotices();
+                showToast('Notice deleted');
             });
         });
     });
@@ -494,44 +469,17 @@ function openNoticeModal(existing) {
             fileUrl = URL.createObjectURL(newFile);
         }
 
-        const noticeData = {
-            title,
-            description,
-            fileName,
-            fileUrl,
-            type,
-            published: new Date().toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            })
-        };
-        
         if (isEdit) {
-            fetch(`http://localhost:3000/api/notices/${existing._id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(noticeData)
-            })
-            .then(() => {
-                loadNotices();
-                showToast("Notice updated");
-            });
+            Object.assign(existing, { title, type, description, fileName, fileUrl });
+            showToast('Notice updated');
         } else {
-            fetch("http://localhost:3000/api/notices", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(noticeData)
-            })
-            .then(() => {
-                loadNotices();
-                showToast("Notice published");
+            notices.unshift({
+                id: uid(notices), title, type, description, fileName, fileUrl,
+                published: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
             });
+            showToast('Notice published');
         }
+        renderNotices();
     });
 }
 document.getElementById('addNoticeBtn').addEventListener('click', () => openNoticeModal(null));
@@ -627,8 +575,82 @@ document.getElementById('addUserBtn').addEventListener('click', () => {
     });
 });
 
-/* Donation form save */
+/* ---------- Donation details: data + summary card + edit popup ---------- */
+let donationDetails = {
+    qrUrl: '',
+    upiId: 'masjidcommittee@upi',
+    mobile: '+91 98765 43210',
+    accountName: 'Community Masjid Welfare Trust',
+    accountNumber: '1234567890123',
+    ifsc: 'SBIN0001234'
+};
+let pendingQrUrl = ''; // set while the popup is open, committed to donationDetails on Save
+
+function donationRow(label, value) {
+    return `<div class="donation-summary-row"><dt>${label}</dt><dd>${value && value.trim() ? value : '<span class="donation-summary-empty">Not set</span>'}</dd></div>`;
+}
+
+function renderDonationSummary() {
+    const qrBox = document.getElementById('donationSummaryQr');
+    qrBox.innerHTML = donationDetails.qrUrl ? `<img src="${donationDetails.qrUrl}" alt="Donation QR code">` : '';
+
+    document.getElementById('donationSummaryList').innerHTML = [
+        donationRow('UPI ID', donationDetails.upiId),
+        donationRow('Mobile number', donationDetails.mobile),
+        donationRow('Account name', donationDetails.accountName),
+        donationRow('Account number', donationDetails.accountNumber),
+        donationRow('IFSC', donationDetails.ifsc),
+    ].join('');
+}
+
+function openDonationModal() {
+    // Pre-fill the popup form with the currently saved details
+    document.getElementById('upiId').value = donationDetails.upiId;
+    document.getElementById('mobileNumber').value = donationDetails.mobile;
+    document.getElementById('accountName').value = donationDetails.accountName;
+    document.getElementById('accountNumber').value = donationDetails.accountNumber;
+    document.getElementById('ifscCode').value = donationDetails.ifsc;
+
+    pendingQrUrl = donationDetails.qrUrl;
+    const qrPreview = document.getElementById('qrPreviewLeft');
+    qrPreview.innerHTML = donationDetails.qrUrl ? `<img src="${donationDetails.qrUrl}" alt="Donation QR code">` : '';
+
+    document.getElementById('donationModalOverlay').classList.add('active');
+}
+function closeDonationModal() {
+    document.getElementById('donationModalOverlay').classList.remove('active');
+}
+
+document.getElementById('editDonationBtn').addEventListener('click', openDonationModal);
+document.getElementById('donationModalCloseBtn').addEventListener('click', closeDonationModal);
+document.getElementById('donationModalCancelBtn').addEventListener('click', closeDonationModal);
+document.getElementById('donationModalOverlay').addEventListener('click', e => {
+    if (e.target.id === 'donationModalOverlay') closeDonationModal();
+});
+
+document.getElementById('replaceQrBtnLeft').addEventListener('click', () => {
+    document.getElementById('qrFileInputLeft').click();
+});
+document.getElementById('qrFileInputLeft').addEventListener('change', e => {
+    if (!e.target.files.length) return;
+    pendingQrUrl = URL.createObjectURL(e.target.files[0]);
+    document.getElementById('qrPreviewLeft').innerHTML = `<img src="${pendingQrUrl}" alt="Donation QR code">`;
+});
+
 document.getElementById('saveDonationBtn').addEventListener('click', () => {
+    if (pendingQrUrl && pendingQrUrl !== donationDetails.qrUrl && donationDetails.qrUrl) {
+        URL.revokeObjectURL(donationDetails.qrUrl);
+    }
+    donationDetails = {
+        qrUrl: pendingQrUrl,
+        upiId: document.getElementById('upiId').value.trim(),
+        mobile: document.getElementById('mobileNumber').value.trim(),
+        accountName: document.getElementById('accountName').value.trim(),
+        accountNumber: document.getElementById('accountNumber').value.trim(),
+        ifsc: document.getElementById('ifscCode').value.trim(),
+    };
+    renderDonationSummary();
+    closeDonationModal();
     showToast('Donation details saved');
 });
 
@@ -639,3 +661,4 @@ renderGeneralMembers();
 renderNotices();
 renderAlbums();
 renderAdminUsers();
+renderDonationSummary();

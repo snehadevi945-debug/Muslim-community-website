@@ -6,7 +6,7 @@
 <title>Committee Admin — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
@@ -195,34 +195,15 @@
         <!-- ===== DONATION VIEW ===== -->
         <section class="admin-view" id="view-donation">
             <h1 class="page-title" style="margin-bottom:22px;">Donation Details</h1>
-            <div class="form-card">
-                <div class="qr-upload-row">
-                    <div class="qr-placeholder"></div>
-                    <button class="btn btn-outline">↑ Replace QR image</button>
-                </div>
-                <div class="form-group">
-                    <label>UPI ID</label>
-                    <input type="text" class="form-input" placeholder="example@upi" id="upiId">
-                </div>
-                <div class="form-group">
-                    <label>Mobile number</label>
-                    <input type="text" class="form-input" placeholder="+91 XXXXX XXXXX" id="mobileNumber">
-                </div>
-                <div class="form-group">
-                    <label>Account name</label>
-                    <input type="text" class="form-input" placeholder="As per bank records" id="accountName">
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Account number</label>
-                        <input type="text" class="form-input" id="accountNumber">
+            <div class="donation-grid">
+                <div class="donation-summary-card">
+                    <div class="donation-summary-header">
+                        <h3>Current donation details</h3>
+                        <button type="button" class="btn btn-outline btn-sm" id="editDonationBtn">✎ Edit details</button>
                     </div>
-                    <div class="form-group">
-                        <label>IFSC</label>
-                        <input type="text" class="form-input" id="ifscCode">
-                    </div>
+                    <div class="donation-summary-qr" id="donationSummaryQr"></div>
+                    <dl class="donation-summary-list" id="donationSummaryList"></dl>
                 </div>
-                <button class="btn btn-primary" id="saveDonationBtn">Save changes</button>
             </div>
         </section>
 
@@ -282,7 +263,54 @@
     </div>
 </div>
 
+<!-- ============ DONATION EDIT POPUP (the original Donation Details card, now opened on demand) ============ -->
+<div class="modal-overlay" id="donationModalOverlay">
+    <div class="modal-card" style="max-width:520px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Edit donation details</h3>
+            <button class="modal-close" id="donationModalCloseBtn">&times;</button>
+        </div>
+
+        <div class="form-card" id="donationFormCard" style="box-shadow:none;border:none;padding:0;">
+            <div class="qr-upload-row">
+                <div class="qr-placeholder" id="qrPreviewLeft"></div>
+                <div>
+                    <button type="button" class="btn btn-outline" id="replaceQrBtnLeft">↑ Replace QR image</button>
+                    <input type="file" id="qrFileInputLeft" accept="image/*" style="display:none;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>UPI ID</label>
+                <input type="text" class="form-input" placeholder="example@upi" id="upiId">
+            </div>
+            <div class="form-group">
+                <label>Mobile number</label>
+                <input type="text" class="form-input" placeholder="+91 XXXXX XXXXX" id="mobileNumber">
+            </div>
+            <div class="form-group">
+                <label>Account name</label>
+                <input type="text" class="form-input" placeholder="As per bank records" id="accountName">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Account number</label>
+                    <input type="text" class="form-input" id="accountNumber">
+                </div>
+                <div class="form-group">
+                    <label>IFSC</label>
+                    <input type="text" class="form-input" id="ifscCode">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="donationModalCancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="saveDonationBtn">Update Details</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
-<script src="javascript/script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
