@@ -99,6 +99,10 @@ app.post("/api/projects", async (req, res) => {
 
 //Edit projects
 app.put("/api/projects/:id", async (req, res) => {
+      console.log("PUT Request");
+    console.log("ID:", req.params.id);
+    console.log("Body:", req.body);
+
     try {
         const updatedProject = await Project.findByIdAndUpdate(
             req.params.id,
@@ -110,6 +114,25 @@ app.put("/api/projects/:id", async (req, res) => {
     } catch (err) {
         res.status(400).json({ error: err.message });
     }});
+// Delete Projects
+app.delete("/api/projects/:id", async (req, res) => {
+     console.log("DELETE Request");
+    console.log("ID:", req.params.id);
+
+    try {
+        await Project.findByIdAndDelete(req.params.id);
+
+        res.json({
+            message: "Project deleted successfully"
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            error: err.message
+        });
+    }
+});
+
 // Get all members
 app.get("/api/members", async (req, res) => {
     try {

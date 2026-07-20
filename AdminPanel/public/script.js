@@ -81,6 +81,8 @@ function statusClass(status) {
 }
 
 function renderProjects() {
+      console.log("renderProjects called");
+    console.log(projects);
     const rowsHtml = projects.map(p => `
         <tr data-id="${p._id}">
             <td class="cell-title">${p.title}</td>
@@ -96,10 +98,15 @@ function renderProjects() {
     const rowsHtml2 = projects.map(p => `
     <tr data-id="${p._id}">
         <td>${p.title}</td>
+        <td>${p.description}</td>
         <td>${p.status}</td>
         <td>${p.progress}%</td>
         <td>${p.icon || "🏢"}</td>
         <td>${new Date(p.createdAt).toLocaleDateString()}</td>
+        <td class="row-actions">
+    <button class="btn btn-outline btn-sm edit-project">Edit</button>
+    <button class="btn btn-danger-outline btn-sm delete-project">Delete</button>
+</td>
     </tr>
     `).join("");
 
@@ -108,11 +115,19 @@ document.getElementById("projectsTableBody2").innerHTML = rowsHtml2;
     document.querySelectorAll('.delete-project').forEach(btn => {
         btn.addEventListener('click', e => {
             const id = e.target.closest("tr").dataset.id;
-            confirmAction('Delete this project? This cannot be undone.', () => {
-                projects = projects.filter(p => p._id !== id);
-                renderProjects();
-                showToast('Project deleted');
-            });
+            confirmAction("Delete this project? This cannot be undone.", () => {
+
+    fetch(`${API_URL}/${id}`, {
+        method: "DELETE"
+    })
+    .then(res => res.json())
+    .then(() => {
+        showToast("Project deleted");
+        fetchProjects();
+    })
+    .catch(err => console.error(err));
+
+});
         });
     });
     document.querySelectorAll('.edit-project').forEach(btn => {
@@ -431,6 +446,8 @@ function fieldHtml(label, id, value = '', type = 'text') {
 
 /* Add / edit project */
 function openProjectModal(existing) {
+    console.log("Modal opened");
+console.log(existing);
     const isEdit = !!existing;
 
     openModal(
@@ -465,7 +482,8 @@ function openProjectModal(existing) {
             const target = document.getElementById("f_target").value.trim() || "TBD";
 
             if (isEdit) {
-
+console.log("Saving...");
+console.log(existing);
               fetch(`${API_URL}/${existing._id}`, {
         method: "PUT",
         headers: {
