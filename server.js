@@ -99,6 +99,19 @@ app.post("/api/projects", async (req, res) => {
     }
 });
 
+//Edit projects
+app.put("/api/projects/:id", async (req, res) => {
+    try {
+        const updatedProject = await Project.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        res.json(updatedProject);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }});
 // Get all members
 app.get("/api/members", async (req, res) => {
     try {
