@@ -8,6 +8,7 @@
 let projects = [];
 const API_URL = "http://localhost:3000/api/projects";
 const MEMBER_API = "http://localhost:3000/api/members";
+const GALLERY_API = "http://localhost:3000/api/gallery";
 
 let execMembers = [];
 
@@ -22,12 +23,7 @@ let notices = [
     { id: 2, title: "Raksha Bandhan Langar", description: "Community langar organised on the occasion of Raksha Bandhan, open to all members and neighbours.", fileName: "", fileUrl: "", type: "Event", published: "05 Jul 2026" },
     { id: 3, title: "AGM notice", description: "Annual General Meeting notice with agenda items for review of accounts and elections.", fileName: "agm_notice.pdf", fileUrl: "", type: "Notice", published: "02 Jul 2026" },
 ];
-
-let albums = [
-    { id: 1, title: "Ramzan & Eid 2026", files: Array.from({ length: 86 }, (_, i) => `photo_${i + 1}.jpg`) },
-    { id: 2, title: "Minaret work progress", files: Array.from({ length: 44 }, (_, i) => `progress_${i + 1}.jpg`) },
-    { id: 3, title: "Eid Milad juloos", files: Array.from({ length: 61 }, (_, i) => `juloos_${i + 1}.jpg`) },
-];
+let albums = [];
 
 let adminUsers = [
     { id: 1, name: "Abdul Rahman Khan", email: "president@…org", role: "SUPER ADMIN", locked: true },
@@ -313,35 +309,90 @@ function fileTypeIcon(fileName) {
 }
 
 function renderAlbums() {
-    const cards = albums.map(a => `
-        <div class="album-card" data-id="${a.id}">
-            <div class="album-thumb"></div>
-            <div class="album-body">
-                <div class="album-title">${a.title}</div>
-                <div class="album-meta">${a.files.length} photos</div>
-                <div class="album-actions">
-                    <button class="btn btn-outline btn-sm manage-album">Manage</button>
-                    <button class="btn btn-outline btn-sm upload-album">+ Upload</button>
-                </div>
+
+    const cards = albums.map(album => `
+
+        <div class="album-card" data-id="${album._id}">
+
+            <div class="album-thumb">
+                ${
+                    album.coverImage
+                        ? `<img src="${album.coverImage}" alt="${album.title}">`
+                        : ""
+                }
             </div>
-        </div>`).join('');
-    document.getElementById('galleryGrid').innerHTML = cards + `
-        <div class="album-card-create" id="createAlbumCard">+ Create album</div>`;
 
-    document.getElementById('createAlbumCard').addEventListener('click', () => openAlbumModal(null));
+            <div class="album-body">
 
-    document.querySelectorAll('.manage-album').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('.album-card').dataset.id);
-            openManageAlbumModal(albums.find(a => a.id === id));
+                <div class="album-title">
+                    ${album.title}
+                </div>
+
+                <div class="album-meta">
+                    ${album.photos.length} photos
+                </div>
+
+                <div class="album-actions">
+
+                    <button class="btn btn-outline btn-sm manage-album">
+                        Manage
+                    </button>
+
+                    <button class="btn btn-outline btn-sm upload-album">
+                        + Upload
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `).join("");
+
+
+
+    document.getElementById("galleryGrid").innerHTML =
+        cards +
+        `<div class="album-card-create" id="createAlbumCard">+ Create album</div>`;
+
+
+    document
+        .getElementById("createAlbumCard")
+        .addEventListener("click", () => openAlbumModal());
+
+
+
+    document.querySelectorAll(".manage-album").forEach(btn => {
+
+        btn.addEventListener("click", e => {
+
+            const id = e.target.closest(".album-card").dataset.id;
+
+            const album = albums.find(a => a._id === id);
+
+            openManageAlbumModal(album);
+
         });
+
     });
-    document.querySelectorAll('.upload-album').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('.album-card').dataset.id);
-            openUploadToAlbumModal(albums.find(a => a.id === id));
+
+
+
+    document.querySelectorAll(".upload-album").forEach(btn => {
+
+        btn.addEventListener("click", e => {
+
+            const id = e.target.closest(".album-card").dataset.id;
+
+            const album = albums.find(a => a._id === id);
+
+            openUploadToAlbumModal(album);
+
         });
+
     });
+
 }
 
 function renderAdminUsers() {
@@ -691,72 +742,320 @@ function openNoticeModal(existing) {
 document.getElementById('addNoticeBtn').addEventListener('click', () => openNoticeModal(null));
 
 /* Create album (with optional initial files) */
-function openAlbumModal() {
-    openModal('Create album', `
-        ${fieldHtml('Album name', 'a_name')}
+function openAlbumModal(existing) {
+
+    const isEdit = !!existing;
+
+    openModal(
+
+        isEdit ? "Edit Album" : "Create Album",
+
+        `
+        ${fieldHtml(
+            "Album name",
+            "a_name",
+            existing ? existing.title : ""
+        )}
+
         <div class="form-group">
-            <label>Add photos / PDFs</label>
-            <input type="file" class="form-input" id="a_files" accept="image/*,.pdf" multiple>
+            <label>Cover Image URL (optional)</label>
+            <input
+                type="text"
+                class="form-input"
+                id="a_cover"
+                value="${existing ? (existing.coverImage || "") : ""}"
+            >
         </div>
-    `, () => {
-        const title = document.getElementById('a_name').value.trim() || 'Untitled album';
-        const fileInput = document.getElementById('a_files');
-        const files = fileInput.files.length ? Array.from(fileInput.files).map(f => f.name) : [];
-        albums.push({ id: uid(albums), title, files });
-        renderAlbums();
-        showToast('Album created');
-    });
+        `,
+
+        async () => {
+
+            const title =
+                document.getElementById("a_name").value.trim() ||
+                "Untitled Album";
+
+            const coverImage =
+                document.getElementById("a_cover").value.trim();
+
+            try {
+
+                if (isEdit) {
+
+                    await fetch(`${GALLERY_API}/${existing._id}`, {
+
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            title,
+
+                            coverImage,
+
+                            photos: existing.photos
+
+                        })
+
+                    });
+
+                    showToast("Album updated");
+
+                }
+
+                else {
+
+                    await fetch(GALLERY_API, {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            title,
+
+                            coverImage,
+
+                            photos: []
+
+                        })
+
+                    });
+
+                    showToast("Album created");
+
+                }
+
+                fetchGallery();
+
+            }
+
+            catch (err) {
+
+                console.error(err);
+
+            }
+
+        }
+
+    );
+
 }
 document.getElementById('addAlbumBtn').addEventListener('click', openAlbumModal);
 
 /* Manage album — view / remove existing files */
 function openManageAlbumModal(album) {
+
     if (!album) return;
-    const listHtml = album.files.length
-        ? album.files.map((f, i) => `
+
+    const listHtml = album.photos.length
+
+        ? album.photos.map((photo, i) => `
             <div class="file-list-item" data-index="${i}">
-                <span class="file-list-name">📄 ${f}</span>
-                <button type="button" class="btn btn-danger-outline btn-sm remove-file">Remove</button>
-            </div>`).join('')
-        : `<p style="font-size:0.88rem;color:var(--color-text-light);">No files in this album yet.</p>`;
+                <span class="file-list-name">📄 ${photo}</span>
+                <button type="button" class="btn btn-danger-outline btn-sm remove-file">
+                    Remove
+                </button>
+            </div>
+        `).join("")
+
+        : `<p style="font-size:0.88rem;color:var(--color-text-light);">
+                No files in this album yet.
+           </p>`;
+
+
 
     openModal(`Manage — ${album.title}`, `
-        ${fieldHtml('Album name', 'am_name', album.title)}
+
+        ${fieldHtml("Album name", "am_name", album.title)}
+
         <div class="form-group">
-            <label>Files (${album.files.length})</label>
-            <div class="file-list" id="am_fileList">${listHtml}</div>
+
+            <label>Files (${album.photos.length})</label>
+
+            <div class="file-list" id="am_fileList">
+
+                ${listHtml}
+
+            </div>
+
         </div>
-    `, () => {
-        const newTitle = document.getElementById('am_name').value.trim() || album.title;
-        album.title = newTitle;
-        renderAlbums();
-        showToast('Album updated');
+
+    `,
+
+    async () => {
+
+        try {
+
+            await fetch(`${GALLERY_API}/${album._id}`, {
+
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    title: document.getElementById("am_name").value.trim(),
+
+                    coverImage: album.coverImage,
+
+                    photos: album.photos
+
+                })
+
+            });
+
+            await fetchGallery();
+
+            showToast("Album updated");
+
+        }
+
+        catch (err) {
+
+            console.error(err);
+
+        }
+
     });
 
-    document.querySelectorAll('#am_fileList .remove-file').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const idx = Number(e.target.closest('.file-list-item').dataset.index);
-            album.files.splice(idx, 1);
-            openManageAlbumModal(album);
+
+
+    document.querySelectorAll(".remove-file").forEach(btn => {
+
+        btn.addEventListener("click", async e => {
+
+            const idx = Number(
+                e.target.closest(".file-list-item").dataset.index
+            );
+
+            album.photos.splice(idx, 1);
+
+            try {
+
+                await fetch(`${GALLERY_API}/${album._id}`, {
+
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        title: album.title,
+
+                        coverImage: album.coverImage,
+
+                        photos: album.photos
+
+                    })
+
+                });
+
+                openManageAlbumModal(album);
+
+                await fetchGallery();
+
+            }
+
+            catch (err) {
+
+                console.error(err);
+
+            }
+
         });
+
     });
+
 }
 
 /* Upload more files into an existing album */
 function openUploadToAlbumModal(album) {
+
     if (!album) return;
+
     openModal(`Upload to — ${album.title}`, `
+
         <div class="form-group">
+
             <label>Select photos / PDFs</label>
-            <input type="file" class="form-input" id="u_files" accept="image/*,.pdf" multiple>
+
+            <input
+                type="file"
+                class="form-input"
+                id="u_files"
+                accept="image/*,.pdf"
+                multiple>
+
         </div>
-    `, () => {
-        const fileInput = document.getElementById('u_files');
-        const newFiles = Array.from(fileInput.files).map(f => f.name);
-        album.files.push(...newFiles);
-        renderAlbums();
-        showToast(newFiles.length ? `${newFiles.length} file(s) uploaded` : 'No files selected');
+
+    `, async () => {
+
+        const fileInput = document.getElementById("u_files");
+
+        const newFiles = Array.from(fileInput.files).map(file => file.name);
+
+        if (!newFiles.length) {
+
+            showToast("No files selected");
+
+            return;
+
+        }
+
+        try {
+
+            const response = await fetch(`${GALLERY_API}/${album._id}`, {
+
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    title: album.title,
+
+                    coverImage: album.coverImage,
+
+                    photos: [...album.photos, ...newFiles]
+
+                })
+
+            });
+
+            if (!response.ok) {
+
+                throw new Error("Failed to upload files");
+
+            }
+
+            await fetchGallery();
+
+            showToast(`${newFiles.length} file(s) uploaded`);
+
+        }
+
+        catch (err) {
+
+            console.error(err);
+
+            showToast("Upload failed");
+
+        }
+
     });
+
 }
 
 /* Add admin user */
@@ -888,10 +1187,30 @@ async function fetchMembers() {
 
     }
 }
+
+async function fetchGallery() {
+    try {
+
+        const response = await fetch(GALLERY_API);
+
+        albums = await response.json();
+
+        console.log(albums);
+
+        renderAlbums();
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+}
+
+
 fetchProjects();
 fetchMembers();
 renderGeneralMembers();
 renderNotices();
-renderAlbums();
+fetchGallery();
 renderAdminUsers();
 renderDonationSummary();

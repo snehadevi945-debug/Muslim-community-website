@@ -5,6 +5,8 @@ const Notice = require("./AdminPanel/models/Notice");
 const Project = require("./AdminPanel/models/projects");
 const Member = require("./AdminPanel/models/members");
 const Gallery = require("./AdminPanel/models/gallery");
+
+console.log(Gallery);
 const Donation = require("./AdminPanel/models/donation");
 
 const app = express();
@@ -18,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 // Connect MongoDB
 mongoose.connect("mongodb://127.0.0.1:27017/muslim-community-website")
 .then(() => {
-    console.log("✅ MongoDB Connected");
+    console.log("MongoDB Connected");
 })
 .catch((err) => {
     console.log(err);
@@ -26,7 +28,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/muslim-community-website")
 
 // Home Route
 app.get("/", (req, res) => {
-    res.send("Hello! MongoDB Connected Successfully.");
+    res.send("MongoDB Connected Successfully.");
 });
 // Get all notices
 app.get("/api/notices", async (req, res) => {
@@ -155,12 +157,27 @@ app.get("/api/gallery", async (req, res) => {
 
 // Create album
 app.post("/api/gallery", async (req, res) => {
+
+    console.log("POST /api/gallery hit");
+
     try {
+
+        console.log(req.body);
+
         const album = new Gallery(req.body);
+
         await album.save();
+
         res.status(201).json(album);
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+
+        console.error(error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
     }
 });
 
