@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/muslim-community-website")
+mongoose.connect("mongodb://127.0.0.1:27017/muslim_community")
 .then(() => {
     console.log("MongoDB Connected");
 })
