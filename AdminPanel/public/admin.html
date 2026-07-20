@@ -270,7 +270,7 @@
             <h3 class="modal-title">Edit donation details</h3>
             <button class="modal-close" id="donationModalCloseBtn">&times;</button>
         </div>
-
+ 
         <div class="form-card" id="donationFormCard" style="box-shadow:none;border:none;padding:0;">
             <div class="qr-upload-row">
                 <div class="qr-placeholder" id="qrPreviewLeft"></div>
@@ -302,15 +302,27 @@
                 </div>
             </div>
         </div>
-
+ 
         <div class="modal-actions">
             <button class="btn btn-outline" id="donationModalCancelBtn">Cancel</button>
-            <button class="btn btn-primary" id="saveDonationBtn">Update Details</button>
+            <button class="btn btn-primary" id="saveDonationBtn">Save changes</button>
         </div>
     </div>
 </div>
-
+ 
+<!-- ============ QR CODE LIGHTBOX (enlarged, scannable view) ============ -->
+<div class="modal-overlay" id="qrLightboxOverlay">
+    <div class="lightbox-card">
+        <button class="lightbox-close" id="qrLightboxCloseBtn">&times;</button>
+        <div class="lightbox-content">
+            <img id="qrLightboxImg" src="" alt="Donation QR code">
+        </div>
+        <div class="lightbox-caption" id="qrLightboxCaption"></div>
+    </div>
+</div>
+ 
 <div class="toast" id="toast"></div>
+ 
 <script src="script.js"></script>
 </body>
 </html>

@@ -1129,23 +1129,45 @@ let donationDetails = {
     ifsc: 'SBIN0001234'
 };
 let pendingQrUrl = ''; // set while the popup is open, committed to donationDetails on Save
-
-function donationRow(label, value) {
-    return `<div class="donation-summary-row"><dt>${label}</dt><dd>${value && value.trim() ? value : '<span class="donation-summary-empty">Not set</span>'}</dd></div>`;
+ 
+function donationRow(label, value, fullRow) {
+    const rowClass = fullRow ? 'donation-summary-row full-row' : 'donation-summary-row';
+    return `<div class="${rowClass}"><dt>${label}</dt><dd>${value && value.trim() ? value : '<span class="donation-summary-empty">Not set</span>'}</dd></div>`;
 }
-
+ 
 function renderDonationSummary() {
     const qrBox = document.getElementById('donationSummaryQr');
     qrBox.innerHTML = donationDetails.qrUrl ? `<img src="${donationDetails.qrUrl}" alt="Donation QR code">` : '';
-
+ 
     document.getElementById('donationSummaryList').innerHTML = [
         donationRow('UPI ID', donationDetails.upiId),
         donationRow('Mobile number', donationDetails.mobile),
-        donationRow('Account name', donationDetails.accountName),
+        donationRow('Account name', donationDetails.accountName, true),
         donationRow('Account number', donationDetails.accountNumber),
         donationRow('IFSC', donationDetails.ifsc),
     ].join('');
 }
+ 
+/* Tap the QR on the summary card to view it large enough to scan */
+document.getElementById('donationSummaryQr').addEventListener('click', () => {
+    if (!donationDetails.qrUrl) {
+        showToast('No QR code uploaded yet — click "Edit details" to add one');
+        return;
+    }
+    document.getElementById('qrLightboxImg').src = donationDetails.qrUrl;
+    document.getElementById('qrLightboxCaption').textContent = donationDetails.upiId
+        ? `Scan to pay via UPI — ${donationDetails.upiId}`
+        : 'Scan to donate';
+    document.getElementById('qrLightboxOverlay').classList.add('active');
+});
+function closeQrLightbox() {
+    document.getElementById('qrLightboxOverlay').classList.remove('active');
+}
+document.getElementById('qrLightboxCloseBtn').addEventListener('click', closeQrLightbox);
+document.getElementById('qrLightboxOverlay').addEventListener('click', e => {
+    if (e.target.id === 'qrLightboxOverlay') closeQrLightbox();
+});
+
 
 function openDonationModal() {
     // Pre-fill the popup form with the currently saved details
