@@ -386,9 +386,9 @@ td.cell-title { font-weight: 700; }
     transition: all var(--transition-fast);
 }
 .form-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(17,101,48,0.1); }
-
+ 
 textarea.form-input { resize: vertical; min-height: 90px; line-height: 1.5; }
-
+ 
 input[type="file"].form-input {
     padding: 9px 12px;
     background: var(--color-primary-light);
@@ -407,13 +407,13 @@ input[type="file"].form-input::file-selector-button {
     transition: background var(--transition-fast);
 }
 input[type="file"].form-input::file-selector-button:hover { background: var(--color-primary-dark); }
-
+ 
 .existing-file-note {
     font-size: 0.8rem;
     color: var(--color-text-medium);
     margin-top: 6px;
 }
-
+ 
 .file-list {
     max-height: 220px;
     overflow-y: auto;
@@ -430,7 +430,9 @@ input[type="file"].form-input::file-selector-button:hover { background: var(--co
 }
 .file-list-item:last-child { border-bottom: none; }
 .file-list-name { color: var(--color-text-medium); word-break: break-all; padding-right: 10px; }
-
+.file-list-name.file-openable { cursor: pointer; transition: color var(--transition-fast); }
+.file-list-name.file-openable:hover { color: var(--color-primary); text-decoration: underline; }
+ 
 .qr-upload-row { display: flex; align-items: center; gap: 18px; margin-bottom: 20px; }
 .qr-placeholder {
     width: 84px; height: 84px;
@@ -442,52 +444,98 @@ input[type="file"].form-input::file-selector-button:hover { background: var(--co
     overflow: hidden;
 }
 .qr-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+ 
+.member-info{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.member-avatar{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #116530;
+    background:#f5f5f5;
+    flex-shrink:0;
+}
 
 /* ---------------- Donation summary layout ---------------- */
 .donation-grid {
     display: grid;
-    max-width: 480px;
+    width: 100%;
 }
 .form-card { width: 100%; max-width: none; }
-
+ 
 .donation-summary-card {
     background: var(--admin-card-bg);
     border-radius: var(--border-radius-md);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--admin-border);
-    padding: 30px 32px;
+    padding: 36px 40px;
+    width: 100%;
 }
 .donation-summary-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 22px;
+    margin-bottom: 28px;
 }
 .donation-summary-header h3 {
     font-family: var(--font-heading);
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 700;
 }
+.donation-summary-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+}
+.donation-summary-qr-wrap {
+    flex-shrink: 0;
+    text-align: center;
+}
 .donation-summary-qr {
-    width: 96px;
-    height: 96px;
-    border-radius: var(--border-radius-sm);
+    width: 260px;
+    height: 260px;
+    border-radius: var(--border-radius-md);
     background-image: repeating-linear-gradient(45deg, #efe7d8, #efe7d8 8px, #e7dcc7 8px, #e7dcc7 16px);
     background-size: cover;
     background-position: center;
     overflow: hidden;
-    margin-bottom: 22px;
+    cursor: pointer;
+    border: 1px solid var(--admin-border);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.donation-summary-qr:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: var(--shadow-md);
 }
 .donation-summary-qr img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.donation-summary-list { display: flex; flex-direction: column; gap: 16px; }
+.qr-tap-hint {
+    margin-top: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    letter-spacing: 0.3px;
+}
+.donation-summary-list {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 40px;
+    align-content: start;
+}
 .donation-summary-row {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding-bottom: 14px;
+    gap: 6px;
+    padding-bottom: 18px;
     border-bottom: 1px solid var(--admin-border);
 }
-.donation-summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+.donation-summary-row.full-row { grid-column: 1 / -1; }
 .donation-summary-row dt {
     font-size: 0.72rem;
     font-weight: 700;
@@ -495,9 +543,51 @@ input[type="file"].form-input::file-selector-button:hover { background: var(--co
     text-transform: uppercase;
     color: var(--color-text-light);
 }
-.donation-summary-row dd { font-size: 0.95rem; font-weight: 600; color: var(--color-text-dark); word-break: break-word; }
-.donation-summary-empty { font-size: 0.9rem; color: var(--color-text-light); }
-
+.donation-summary-row dd { font-size: 1.05rem; font-weight: 600; color: var(--color-text-dark); word-break: break-word; }
+.donation-summary-empty { font-size: 0.95rem; color: var(--color-text-light); font-weight: 500; }
+ 
+@media (max-width: 900px) {
+    .donation-summary-body { flex-direction: column; align-items: center; }
+    .donation-summary-list { grid-template-columns: 1fr; width: 100%; }
+}
+ 
+/* ---------------- QR Lightbox ---------------- */
+.lightbox-card {
+    background: var(--color-white);
+    border-radius: var(--border-radius-lg);
+    width: 92%;
+    max-width: 420px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+}
+.lightbox-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.06);
+    color: var(--color-text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: background var(--transition-fast);
+}
+.lightbox-close:hover { background: rgba(0,0,0,0.12); }
+.lightbox-content { padding: 48px 40px 24px; display: flex; justify-content: center; }
+.lightbox-content img { width: 100%; max-width: 320px; height: auto; }
+.lightbox-caption {
+    padding: 0 24px 28px;
+    text-align: center;
+    color: var(--color-text-medium);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+ 
 /* ---------------- Settings ---------------- */
 .settings-panel {
     background: var(--admin-card-bg);

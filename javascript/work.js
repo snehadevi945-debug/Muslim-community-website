@@ -1,217 +1,240 @@
 // =========================
-// MEMBER POPUP
+// FETCH AND RENDER DYNAMIC DATA
 // =========================
-const members = {
+const API_BASE = 'http://localhost:3000/api';
 
-    ahmad: {
-        name: "Ahmad Raza Khan",
-        message: "Serving the community is my responsibility and my source of happiness.",
-        about: "Ahmad has been actively serving the Muslim community through mosque renovation, food distribution drives and educational programs.",
-        phone: "+92 300 123 4567",
-        email: "ahmad.khan@community.org",
-        address: "15-B Green Town, Lahore",
-        projects: "18",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-    
-        hours: "152",
-        joined: "2023"
-    },
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchProjects();
+    await fetchMembers();
+});
 
-    fatima: {
-        name: "Fatima Zahra",
-        message: "Helping people is the greatest form of worship.",
-        about: "Fatima organizes women's education programs and health awareness campaigns.",
-        phone: "+92 321 987 6543",
-        email: "fatima.zahra@community.org",
-        address: "8 Gulshan-e-Iqbal, Karachi",
-        projects: "15",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "120",
-        joined: "2022"
-    },
-
-    usman: {
-        name: "Muhammad Usman",
-        message: "Every act of kindness makes our community stronger.",
-        about: "Usman manages youth development and community welfare activities.",
-        phone: "+92 333 456 7890",
-        email: "muhammad.usman@community.org",
-        address: "Model Town, Lahore",
-        projects: "20",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "165",
-        joined: "2021"
-    },
-
-    khadija: {
-        name: "Khadija Bibi",
-        message: "Serving humanity is serving Allah.",
-        about: "Khadija leads women's support and family welfare initiatives.",
-        phone: "+92 301 654 7891",
-        email: "khadija.bibi@community.org",
-        address: "F-10, Islamabad",
-        projects: "17",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "130",
-        joined: "2023"
-    },
-
-    ibrahim: {
-        name: "Ibrahim Siddiqui",
-        message: "Together we build a better community.",
-        about: "Ibrahim supervises volunteer teams and charity drives.",
-        phone: "+92 312 444 5566",
-        email: "ibrahim.s@community.org",
-        address: "Johar Town, Lahore",
-        projects: "14",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "115",
-        joined: "2024"
-    },
-
-    abdul: {
-        name: "Abdul Rahman",
-        message: "Unity is our greatest strength.",
-        about: "Abdul coordinates community events and mosque maintenance.",
-        phone: "+92 322 888 7766",
-        email: "abdulrahman@community.org",
-        address: "DHA Phase 5, Karachi",
-        projects: "22",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "170",
-        joined: "2022"
-    },
-
-    zainab: {
-        name: "Zainab Malik",
-        message: "Education changes generations.",
-        about: "Zainab manages educational workshops for children.",
-        phone: "+92 301 222 3344",
-        email: "zainab.malik@community.org",
-        address: "Satellite Town, Rawalpindi",
-        projects: "19",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "145",
-        joined: "2023"
-    },
-
-    maryam: {
-        name: "Maryam Noor",
-        message: "Small efforts create big changes.",
-        about: "Maryam organizes community health and awareness programs.",
-        phone: "+92 315 666 5544",
-        email: "maryam.noor@community.org",
-        address: "Hayatabad, Peshawar",
-        projects: "16",
-        responsibilities: [
-            "Food Distribution",
-            "Mosque Maintenance",
-            "Event Coordination",
-            "Volunteer Management"
-        ],
-        hours: "128",
-        joined: "2024"
+// -------------------------
+// 1. PROJECTS
+// -------------------------
+async function fetchProjects() {
+    try {
+        const response = await fetch(`${API_BASE}/projects`);
+        if (!response.ok) throw new Error('Failed to fetch projects');
+        const projects = await response.json();
+        
+        const activeContainer = document.getElementById('active-projects-list');
+        const completedContainer = document.getElementById('completed-projects-list');
+        
+        if (activeContainer) activeContainer.innerHTML = '';
+        if (completedContainer) completedContainer.innerHTML = '';
+        
+        let activeCount = 0;
+        let completedCount = 0;
+        
+        projects.forEach(project => {
+            if (project.status === 'Active') {
+                activeCount++;
+                if (activeContainer) {
+                    activeContainer.innerHTML += `
+                        <div class="project-item ${activeCount === 1 ? 'highlight' : ''}">
+                            <div class="project-header">
+                                <div class="left-part">
+                                    <div class="icon-circle">🏢</div>
+                                    <div>
+                                        <h4>${project.title}</h4>
+                                        <p>${project.description || ''}</p>
+                                    </div>
+                                </div>
+                                <span class="small-badge progress-badge">In Progress</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="--progress:${project.progress}%;"></div>
+                            </div>
+                            <div class="progress-value">${project.progress}%</div>
+                        </div>
+                    `;
+                }
+            } else if (project.status === 'Completed') {
+                completedCount++;
+                if (completedContainer) {
+                    // Generate a random date for display since model doesn't have completion date, or just say Completed
+                    completedContainer.innerHTML += `
+                        <div class="completed-item">
+                            <div class="left-part">
+                                <div class="check-circle">✓</div>
+                                <div>
+                                    <h4>${project.title}</h4>
+                                    <p>${project.description || 'Successfully completed project'}</p>
+                                </div>
+                            </div>
+                            <div class="right-part">
+                                <span class="small-badge completed-badge">✓ Completed</span>
+                                <small>100%</small>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        });
+        
+        // Add footer boxes
+        if (activeContainer) {
+            if (activeCount === 0) activeContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No active projects at the moment.</div>';
+            else activeContainer.innerHTML += `
+                <div class="footer-box">
+                    <div>
+                        <strong>${activeCount} Active Projects</strong>
+                        <p>Currently in progress</p>
+                    </div>
+                    <a href="#">View All ↗</a>
+                </div>
+            `;
+        }
+        
+        if (completedContainer) {
+            if (completedCount === 0) completedContainer.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No completed projects yet.</div>';
+            else completedContainer.innerHTML += `
+                <div class="footer-box completed-footer">
+                    <div>
+                        <strong>${completedCount}+ Projects Successfully Completed</strong>
+                        <p>Alhamdulillah</p>
+                    </div>
+                    <a href="#">Archive ↗</a>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        document.getElementById('active-projects-list').innerHTML = '<div style="text-align:center; padding:20px; color:#ff6b6b;">Error loading projects.</div>';
     }
+}
 
-};
+// -------------------------
+// 2. MEMBERS
+// -------------------------
+let globalMembersList = [];
+
+async function fetchMembers() {
+    try {
+        const response = await fetch(`${API_BASE}/members`);
+        if (!response.ok) throw new Error('Failed to fetch members');
+        const members = await response.json();
+        globalMembersList = members;
+        
+        const container = document.getElementById('members-container');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (members.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#666; grid-column: 1/-1;">No members found.</div>';
+            return;
+        }
+        
+        const colors = ['red', 'profile-blue', 'purple', 'brown', 'green', 'violet', 'deep-orange', 'cyan'];
+        
+        members.forEach((member, index) => {
+            const initials = member.name ? member.name.substring(0, 2).toUpperCase() : 'MM';
+            const colorClass = colors[index % colors.length];
+            
+            container.innerHTML += `
+                <div class="member-card">
+                    <div class="card-top-bar"></div>
+                    <div class="member-profile">
+                        <div class="profile-circle ${colorClass}">
+                            ${initials}
+                            <span class="online-dot"></span>
+                        </div>
+                    </div>
+                    <h3 class="member-name">${member.name}</h3>
+                    <div class="member-badge">${member.role || 'Community Member'}</div>
+                    <div class="member-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">☎</span>
+                            <span>${member.phone || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">✉</span>
+                            <span>${member.email || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-icon">📍</span>
+                            <span>${member.address || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <button class="view-profile open-popup" data-id="${member._id}">
+                        View Profile >
+                    </button>
+                </div>
+            `;
+        });
+        
+        attachPopupListeners();
+        
+    } catch (error) {
+        console.error('Error fetching members:', error);
+        document.getElementById('members-container').innerHTML = '<div style="text-align:center; padding:20px; color:#ff6b6b; grid-column: 1/-1;">Error loading members.</div>';
+    }
+}
+
+
+// =========================
+// MEMBER POPUP LOGIC
+// =========================
 const popup = document.getElementById("memberPopup");
-const openButtons = document.querySelectorAll(".open-popup");
 const closeButton = document.getElementById("closePopup");
 
-// Open Popup
-openButtons.forEach(button => {
+function attachPopupListeners() {
+    const openButtons = document.querySelectorAll(".open-popup");
+    
+    openButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const memberId = button.getAttribute('data-id');
+            const member = globalMembersList.find(m => m._id === memberId);
+            if (!member) return;
 
-    button.addEventListener("click", () => {
+            document.getElementById("popupName").textContent = member.name;
+            document.getElementById("popupMessage").textContent = "Serving the community is my responsibility.";
+            document.getElementById("popupAbout").textContent = member.address ? `Resident at ${member.address}` : "Active member of the community.";
+            
+            const responsibilityList = document.getElementById("popupResponsibilities");
+            if (responsibilityList) {
+                responsibilityList.innerHTML = `<li>✔ Community Service</li><li>✔ Volunteer Management</li>`;
+            }
+            
+            document.getElementById("popupProjects").textContent = "15"; // Dummy data since not in model
+            document.getElementById("popupHours").textContent = "120"; // Dummy data
+            document.getElementById("popupJoined").textContent = "2024"; // Dummy data
+            
+            document.getElementById("popupAddress").textContent = "📍 " + (member.address || 'N/A');
+            document.getElementById("popupPhone").textContent = "☎ " + (member.phone || 'N/A');
+            document.getElementById("popupEmail").textContent = "✉ " + (member.email || 'N/A');
 
-        const member = members[button.dataset.member];
-
-        document.getElementById("popupName").textContent = member.name;
-        document.getElementById("popupMessage").textContent = member.message;
-        document.getElementById("popupAbout").textContent = member.about;
-        const responsibilityList = document.getElementById("popupResponsibilities");
-
-responsibilityList.innerHTML = "";
-
-member.responsibilities.forEach(function(item) {
-    responsibilityList.innerHTML += `<li>✔ ${item}</li>`;
-});
-        document.getElementById("popupProjects").textContent = member.projects;
-        document.getElementById("popupHours").textContent = member.hours;
-        document.getElementById("popupJoined").textContent = member.joined;
-        document.getElementById("popupAddress").textContent = "📍 " + member.address;
-        document.getElementById("popupPhone").textContent = "☎ " + member.phone;
-        document.getElementById("popupEmail").textContent = "✉ " + member.email;
-
-        popup.classList.add("active");
-        document.body.style.overflow = "hidden";
-
+            if (popup) {
+                popup.classList.add("active");
+                document.body.style.overflow = "hidden";
+            }
+        });
     });
+}
 
-});
-
-// Close Popup Button
-closeButton.addEventListener("click", () => {
-
-    popup.classList.remove("active");
-    document.body.style.overflow = "auto";
-
-});
-
-// Close when clicking outside
-popup.addEventListener("click", (e) => {
-
-    if (e.target === popup) {
-
-        popup.classList.remove("active");
+if (closeButton) {
+    closeButton.addEventListener("click", () => {
+        if (popup) popup.classList.remove("active");
         document.body.style.overflow = "auto";
+    });
+}
 
-    }
-
-});
+if (popup) {
+    // Close when clicking outside
+    popup.addEventListener("click", (e) => {
+        if (e.target === popup) {
+            popup.classList.remove("active");
+            document.body.style.overflow = "auto";
+        }
+    });
+}
 
 // Close with ESC key
 document.addEventListener("keydown", (e) => {
-
-    if (e.key === "Escape") {
-
+    if (e.key === "Escape" && popup && popup.classList.contains("active")) {
         popup.classList.remove("active");
         document.body.style.overflow = "auto";
-
     }
-
 });
