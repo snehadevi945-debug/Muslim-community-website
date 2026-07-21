@@ -4,6 +4,46 @@
    Data is kept in-memory (mirrors the screenshots' content).
    ========================================================== */
 
+/* ---------- Auth Guard ---------- */
+const token = localStorage.getItem("adminToken");
+if (!token) {
+    window.location.href = "login.html";
+} else {
+    fetch("http://localhost:3000/api/admin/verify", {
+        headers: { "Authorization": `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message && data.message !== "Admin created successfully") {
+            // Invalid token
+            localStorage.removeItem("adminToken");
+            window.location.href = "login.html";
+        } else if (data.name) {
+            // Valid token, update UI
+            const nameDisplay = document.getElementById("adminNameDisplay");
+            if (nameDisplay) nameDisplay.textContent = data.name;
+            
+            const roleDisplay = document.getElementById("adminRoleDisplay");
+            if (roleDisplay) roleDisplay.textContent = data.role;
+            
+            const initialDisplay = document.getElementById("adminInitialDisplay");
+            if (initialDisplay) initialDisplay.textContent = data.name.charAt(0).toUpperCase();
+        }
+    })
+    .catch(err => console.error("Auth check failed:", err));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.removeItem("adminToken");
+            window.location.href = "login.html";
+        });
+    }
+});
+
 /* ---------- Sample data ---------- */
 let projects = [];
 const API_URL = "http://localhost:3000/api/projects";
@@ -144,8 +184,16 @@ function renderExecMembers() {
                 <span class="drag-handle">☰</span>
             </td>
 
-            <td class="cell-title">
-                ${member.fullName || member.name} — ${member.role}
+           <td class="cell-title">
+                <div class="member-info">
+                    <img
+                        src="${member.photo || 'assets/default-avatar.png'}"
+                        class="member-avatar">
+
+                    <span>
+                        ${member.fullName || member.name} — ${member.role}
+                    </span>
+                </div>
             </td>
 
             <td>${member.phone}</td>
@@ -237,7 +285,15 @@ function renderGeneralMembers(filter = '') {
     );
     document.getElementById('generalMembersBody').innerHTML = filtered.map(m => `
         <tr data-id="${m.id}">
-            <td class="cell-title">${m.name}</td>
+            <td class="cell-title">
+    <div class="member-info">
+        <img
+            src="${m.photo || 'assets/default-avatar.png'}"
+            class="member-avatar">
+
+        <span>${m.name}</span>
+    </div>
+</td>
             <td>${m.phone}</td>
             <td>${formatSince(m.joining)}</td>
             <td class="row-actions">
@@ -596,6 +652,14 @@ function openMemberModal(existing, kind) {
 
         `
         ${fieldHtml("Full name", "m_name", existing ? existing.name : "")}
+        <div class="form-group">
+    <label>Profile Picture</label>
+    <input
+        type="file"
+        id="m_photo"
+        class="form-input"
+        accept="image/*">
+</div>
         ${fieldHtml("Role (leave blank for general member)", "m_role", existing && existing.role ? existing.role : "")}
         ${fieldHtml("Phone", "m_phone", existing ? existing.phone : "")}
         ${kind !== "general" ? fieldHtml("Email", "m_email", existing ? existing.email : "") : ""}
@@ -608,7 +672,13 @@ function openMemberModal(existing, kind) {
             const role = document.getElementById("m_role").value.trim();
             const phone = document.getElementById("m_phone").value.trim() || "—";
             const joining = document.getElementById("m_joining").value || todayIso;
+            const photoInput = document.getElementById("m_photo");
 
+            let photo = existing?.photo || "";
+
+            if (photoInput.files.length) {
+                photo = URL.createObjectURL(photoInput.files[0]);
+            }
             const emailField = document.getElementById("m_email");
 
             const email = emailField
@@ -642,7 +712,8 @@ function openMemberModal(existing, kind) {
                                 role,
                                 phone,
                                 email,
-                                joining
+                                joining,
+                                photo
                             })
 
                         });
@@ -664,7 +735,8 @@ function openMemberModal(existing, kind) {
                                 role,
                                 phone,
                                 email,
-                                joining
+                                joining,
+                                photo
                             })
 
                         });
@@ -695,7 +767,8 @@ function openMemberModal(existing, kind) {
                     Object.assign(existing, {
                         name,
                         phone,
-                        joining
+                        joining,
+                        photo
                     });
 
                     renderGeneralMembers(document.getElementById("memberSearch").value);
@@ -708,7 +781,8 @@ function openMemberModal(existing, kind) {
                         id: uid(generalMembers),
                         name,
                         phone,
-                        joining
+                        joining,
+                        photo
                     });
 
                     renderGeneralMembers();

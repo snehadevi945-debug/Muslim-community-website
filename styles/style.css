@@ -191,6 +191,21 @@ button {
     width: 100%;
 }
 
+.btn-admin-login {
+    background-color: transparent;
+    color: var(--color-text-medium);
+    border: 1px solid var(--color-text-light);
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+.btn-admin-login:hover {
+    background-color: var(--color-bg-light);
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary);
+}
+
 /* Badges */
 .section-badge {
     display: inline-block;

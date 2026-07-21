@@ -1,10 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const Notice = require("./AdminPanel/models/Notice");
 const Project = require("./AdminPanel/models/projects");
 const Member = require("./AdminPanel/models/members");
 const Gallery = require("./AdminPanel/models/gallery");
+const Admin = require("./AdminPanel/models/Admin");
+
+const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
 
 console.log(Gallery);
 const Donation = require("./AdminPanel/models/donation");
@@ -30,6 +35,85 @@ mongoose.connect("mongodb://127.0.0.1:27017/muslim_community")
 app.get("/", (req, res) => {
     res.send("MongoDB Connected Successfully.");
 });
+
+// --- Auth Routes ---
+app.post("/api/admin/signup", async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        
+        // Check if admin already exists
+        const existingAdmin = await Admin.findOne({ email });
+        if (existingAdmin) {
+            return res.status(400).json({ message: "Admin with this email already exists" });
+        }
+        
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        
+        const newAdmin = new Admin({
+            name,
+            email,
+            password: hashedPassword
+        });
+        
+        await newAdmin.save();
+        res.status(201).json({ message: "Admin created successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.post("/api/admin/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        // Find admin
+        const admin = await Admin.findOne({ email });
+        if (!admin) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+        
+        // Check password
+        const isMatch = await bcrypt.compare(password, admin.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid email or password" });
+        }
+        
+        // Create token
+        const token = jwt.sign(
+            { id: admin._id, role: admin.role, name: admin.name },
+            JWT_SECRET,
+            { expiresIn: "1d" }
+        );
+        
+        res.json({ token, admin: { id: admin._id, name: admin.name, email: admin.email, role: admin.role } });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.get("/api/admin/verify", async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        
+        if (!token) {
+            return res.status(401).json({ message: "No token, authorization denied" });
+        }
+        
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const admin = await Admin.findById(decoded.id).select("-password");
+        
+        if (!admin) {
+            return res.status(401).json({ message: "Token is not valid" });
+        }
+        
+        res.json(admin);
+    } catch (error) {
+        res.status(401).json({ message: "Token is not valid" });
+    }
+});
+
 // Get all notices
 app.get("/api/notices", async (req, res) => {
     try {
