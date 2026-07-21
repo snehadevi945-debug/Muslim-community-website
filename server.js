@@ -445,3 +445,46 @@ app.delete("/api/admin/:id", async (req, res) => {
     }
 
 });
+
+app.post("/api/admin", async (req, res) => {
+
+    try {
+
+        const { name, email, password, role } = req.body;
+
+        const existingAdmin = await Admin.findOne({ email });
+
+        if (existingAdmin) {
+            return res.status(400).json({
+                message: "Admin with this email already exists"
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const admin = new Admin({
+            name,
+            email,
+            password: hashedPassword,
+            role
+        });
+
+        await admin.save();
+
+        res.status(201).json({
+            _id: admin._id,
+            name: admin.name,
+            email: admin.email,
+            role: admin.role
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            message: err.message
+        });
+
+    }
+
+});

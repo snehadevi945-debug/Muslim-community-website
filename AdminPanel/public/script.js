@@ -51,6 +51,8 @@ const MEMBER_API = "http://localhost:3000/api/members";
 const GALLERY_API = "http://localhost:3000/api/gallery";
 const DONATION_API = "http://localhost:3000/api/donations";
 const NOTICE_API = "http://localhost:3000/api/notices";
+const ADMIN_API = "http://localhost:3000/api/admin";
+
 
 let execMembers = [];
 
@@ -64,10 +66,7 @@ let notices = [];
 
 let albums = [];
 
-let adminUsers = [
-    { id: 1, name: "Abdul Rahman Khan", email: "president@…org", role: "SUPER ADMIN", locked: true },
-    { id: 2, name: "Imran Siddiqui", email: "secretary@…org", role: "ADMIN", locked: false },
-];
+let adminUsers = [];
 
 let donationDetails = {};
 
@@ -475,30 +474,51 @@ function renderAlbums() {
 }
 
 function renderAdminUsers() {
-    document.getElementById('adminUsersList').innerHTML = adminUsers.map(u => `
-        <div class="settings-row" data-id="${u.id}">
+
+    document.getElementById("adminUsersList").innerHTML = adminUsers.map(u => `
+        <div class="settings-row" data-id="${u._id}">
             <div class="settings-row-inline">
                 <span class="user-name">${u.name}</span>
                 <span class="user-email">${u.email}</span>
-                <span class="role-badge ${u.role === 'SUPER ADMIN' ? 'super' : 'admin'}">${u.role}</span>
+                <span class="role-badge ${u.role === "SUPER ADMIN" ? "super" : "admin"}">${u.role}</span>
             </div>
-            <div class="settings-row-actions">
-                <button class="btn btn-outline btn-sm">Edit</button>
-                ${u.locked ? '' : '<button class="btn btn-danger-outline btn-sm remove-user">Remove</button>'}
-            </div>
-        </div>`).join('');
 
-    document.querySelectorAll('.remove-user').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('.settings-row').dataset.id);
-            const user = adminUsers.find(u => u.id === id);
-            confirmAction(`Remove ${user ? user.name : 'this user'} from admin users?`, () => {
-                adminUsers = adminUsers.filter(u => u.id !== id);
-                renderAdminUsers();
-                showToast('User removed');
+            <div class="settings-row-actions">
+                <button class="btn btn-outline btn-sm edit-admin">Edit</button>
+
+                ${u.role === "SUPER ADMIN"
+                    ? ""
+                    : `<button class="btn btn-danger-outline btn-sm remove-user">Remove</button>`
+                }
+
+            </div>
+        </div>
+    `).join("");
+
+    document.querySelectorAll(".remove-user").forEach(btn => {
+
+        btn.addEventListener("click", e => {
+
+            const id = e.target.closest(".settings-row").dataset.id;
+
+            const user = adminUsers.find(u => u._id === id);
+
+            confirmAction(`Remove ${user.name}?`, async () => {
+
+                await fetch(`${ADMIN_API}/${id}`, {
+                    method: "DELETE"
+                });
+
+                await fetchAdmins();
+
+                showToast("User removed");
+
             });
+
         });
+
     });
+
 }
 
 /* ---------- Modal engine ---------- */
@@ -1212,10 +1232,16 @@ function openUploadToAlbumModal(album) {
 }
 
 /* Add admin user */
-document.getElementById('addUserBtn').addEventListener('click', () => {
-    openModal('Add admin user', `
-        ${fieldHtml('Full name', 'u_name')}
-        ${fieldHtml('Email', 'u_email')}
+document.getElementById("addUserBtn").addEventListener("click", () => {
+
+    openModal("Add admin user", `
+
+        ${fieldHtml("Full name", "u_name")}
+
+        ${fieldHtml("Email", "u_email")}
+
+        ${fieldHtml("Password", "u_password", "", "password")}
+
         <div class="form-group">
             <label>Role</label>
             <select class="form-input" id="u_role">
@@ -1223,14 +1249,49 @@ document.getElementById('addUserBtn').addEventListener('click', () => {
                 <option>SUPER ADMIN</option>
             </select>
         </div>
-    `, () => {
-        const name = document.getElementById('u_name').value.trim() || 'Unnamed user';
-        const email = document.getElementById('u_email').value.trim() || '—';
-        const role = document.getElementById('u_role').value;
-        adminUsers.push({ id: uid(adminUsers), name, email, role, locked: false });
-        renderAdminUsers();
-        showToast('User added');
+
+    `, async () => {
+
+        const name = document.getElementById("u_name").value.trim();
+        const email = document.getElementById("u_email").value.trim();
+        const password = document.getElementById("u_password").value;
+        const role = document.getElementById("u_role").value;
+
+        try {
+
+            const res = await fetch(`${ADMIN_API}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                    role
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                showToast(data.message);
+                return;
+            }
+
+            await fetchAdmins();
+
+            showToast("User added");
+
+        } catch (err) {
+
+            console.error(err);
+            showToast("Failed to add user");
+
+        }
+
     });
+
 });
 
 /* ---------- Donation details: data + summary card + edit popup ---------- */
@@ -1491,10 +1552,27 @@ async function fetchNotices() {
     }
 }
 
+async function fetchAdmins() {
+    try {
+
+        const res = await fetch(ADMIN_API);
+
+        adminUsers = await res.json();
+
+        renderAdminUsers();
+
+    } catch (err) {
+
+        console.error(err);
+        showToast("Failed to load admin users");
+
+    }
+}
+
 fetchProjects();
 fetchMembers();
 renderGeneralMembers();
 fetchNotices();
 fetchGallery();
-renderAdminUsers();
+fetchAdmins();
 fetchDonation();
