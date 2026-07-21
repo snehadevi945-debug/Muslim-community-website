@@ -157,6 +157,18 @@ app.delete("/api/notices/:id", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+// Get all notices
+app.get("/api/notices", async (req, res) => {
+    try {
+        const notices = await Notice.find();
+        res.json(notices);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
@@ -371,4 +383,65 @@ app.delete("/api/donations/:id", async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+});
+
+//get admin
+app.get("/api/admin", async (req, res) => {
+    try {
+        const admins = await Admin.find().select("-password");
+        res.json(admins);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+//update admin
+app.put("/api/admin/:id", async (req, res) => {
+    try {
+
+        const updateData = {
+            name: req.body.name,
+            email: req.body.email,
+            role: req.body.role
+        };
+
+        if (req.body.password) {
+
+            const salt = await bcrypt.genSalt(10);
+            updateData.password = await bcrypt.hash(req.body.password, salt);
+
+        }
+
+        const admin = await Admin.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true }
+        ).select("-password");
+
+        res.json(admin);
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+//delete admin
+app.delete("/api/admin/:id", async (req, res) => {
+
+    try {
+
+        await Admin.findByIdAndDelete(req.params.id);
+
+        res.json({
+            message: "Admin deleted"
+        });
+
+    } catch (err) {
+
+        res.status(500).json({
+            message: err.message
+        });
+
+    }
+
 });
