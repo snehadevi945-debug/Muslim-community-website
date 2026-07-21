@@ -50,6 +50,7 @@ const API_URL = "http://localhost:3000/api/projects";
 const MEMBER_API = "http://localhost:3000/api/members";
 const GALLERY_API = "http://localhost:3000/api/gallery";
 const DONATION_API = "http://localhost:3000/api/donations";
+const NOTICE_API = "http://localhost:3000/api/notices";
 
 let execMembers = [];
 
@@ -59,11 +60,8 @@ let generalMembers = [
     { id: 2, name: "Ayesha Begum", phone: "+91 99220 11445", joining: "2021-07-01" },
 ];
 
-let notices = [
-    { id: 1, title: "Ramzan taraweeh schedule", description: "Daily taraweeh prayer timings for the month of Ramzan, updated weekly based on moon sighting.", fileName: "taraweeh_schedule.pdf", fileUrl: "", type: "Notice", published: "12 Jul 2026" },
-    { id: 2, title: "Raksha Bandhan Langar", description: "Community langar organised on the occasion of Raksha Bandhan, open to all members and neighbours.", fileName: "", fileUrl: "", type: "Event", published: "05 Jul 2026" },
-    { id: 3, title: "AGM notice", description: "Annual General Meeting notice with agenda items for review of accounts and elections.", fileName: "agm_notice.pdf", fileUrl: "", type: "Notice", published: "02 Jul 2026" },
-];
+let notices = [];
+
 let albums = [];
 
 let adminUsers = [
@@ -331,46 +329,43 @@ document.getElementById('memberSearch').addEventListener('input', e => {
 });
 
 function renderNotices() {
-    document.getElementById('noticesTableBody').innerHTML = notices.map(n => `
-        <tr data-id="${n.id}">
+    document.getElementById("noticesTableBody").innerHTML = notices.map(n => `
+        <tr data-id="${n._id}">
             <td class="cell-title">${n.title}</td>
             <td>${n.type}</td>
             <td>
-                ${n.fileName
-                    ? `<button type="button" class="attachment-link open-attachment" title="Open ${n.fileName}">${fileTypeIcon(n.fileName)} ${n.fileName}</button>`
+                ${n.attachment
+                    ? `<a href="${n.attachment}" target="_blank" class="attachment-link">${n.attachment}</a>`
                     : `<span class="no-attachment">— none —</span>`}
             </td>
-            <td>${n.published}</td>
+            <td>${n.publishedDate}</td>
             <td class="row-actions">
                 <button class="btn btn-outline btn-sm edit-notice">Edit</button>
                 <button class="btn btn-danger-outline btn-sm delete-notice">Delete</button>
             </td>
-        </tr>`).join('');
+        </tr>
+    `).join("");
 
-    document.querySelectorAll('.open-attachment').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            const notice = notices.find(n => n.id === id);
-            openAttachment(notice);
+    document.querySelectorAll(".edit-notice").forEach(btn => {
+        btn.addEventListener("click", e => {
+            const id = e.target.closest("tr").dataset.id;
+            openNoticeModal(notices.find(n => n._id === id));
         });
     });
 
-    document.querySelectorAll('.edit-notice').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            openNoticeModal(notices.find(n => n.id === id));
-        });
-    });
+    document.querySelectorAll(".delete-notice").forEach(btn => {
+        btn.addEventListener("click", e => {
+            const id = e.target.closest("tr").dataset.id;
 
-    document.querySelectorAll('.delete-notice').forEach(btn => {
-        btn.addEventListener('click', e => {
-            const id = Number(e.target.closest('tr').dataset.id);
-            const notice = notices.find(n => n.id === id);
-            confirmAction(`Delete "${notice ? notice.title : 'this notice'}"? This cannot be undone.`, () => {
-                if (notice && notice.fileUrl) URL.revokeObjectURL(notice.fileUrl);
-                notices = notices.filter(n => n.id !== id);
-                renderNotices();
-                showToast('Notice deleted');
+            confirmAction("Delete this notice?", async () => {
+
+                await fetch(`${NOTICE_API}/${id}`, {
+                    method: "DELETE"
+                });
+
+                await fetchNotices();
+
+                showToast("Notice deleted");
             });
         });
     });
@@ -806,55 +801,97 @@ document.getElementById("addMemberBtn").addEventListener("click", () => openMemb
 
 /* Add / edit notice */
 function openNoticeModal(existing) {
+
     const isEdit = !!existing;
-    openModal(isEdit ? 'Edit notice' : 'Publish notice', `
-        ${fieldHtml('Title', 'n_title', existing ? existing.title : '')}
+
+    openModal(isEdit ? "Edit notice" : "Publish notice", `
+        ${fieldHtml("Title", "n_title", existing ? existing.title : "")}
+
         <div class="form-group">
             <label>Type</label>
             <select class="form-input" id="n_type">
-                <option ${existing && existing.type === 'Notice' ? 'selected' : ''}>Notice</option>
-                <option ${existing && existing.type === 'Event' ? 'selected' : ''}>Event</option>
+                <option ${existing && existing.type === "Notice" ? "selected" : ""}>Notice</option>
+                <option ${existing && existing.type === "Event" ? "selected" : ""}>Event</option>
             </select>
         </div>
+
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-input" id="n_description" placeholder="Write the notice details here…">${existing ? existing.description || '' : ''}</textarea>
+            <textarea class="form-input" id="n_description">${existing ? existing.description || "" : ""}</textarea>
         </div>
+
         <div class="form-group">
-            <label>Attach file (image or PDF)</label>
+            <label>Attachment</label>
             <input type="file" class="form-input" id="n_file" accept="image/*,.pdf">
-            ${existing && existing.fileName ? `<div class="existing-file-note">Current file: ${existing.fileName}${existing.fileUrl ? ' (click the attachment chip in the table to open it)' : ' — demo data, no live preview'}</div>` : ''}
         </div>
-    `, () => {
-        const title = document.getElementById('n_title').value.trim() || 'Untitled notice';
-        const type = document.getElementById('n_type').value;
-        const description = document.getElementById('n_description').value.trim();
-        const fileInput = document.getElementById('n_file');
-        const newFile = fileInput.files.length ? fileInput.files[0] : null;
 
-        let fileName = existing ? existing.fileName : '';
-        let fileUrl = existing ? existing.fileUrl : '';
+    `, async () => {
 
-        if (newFile) {
-            // Release the previous blob URL (if any) before creating a new one
-            if (existing && existing.fileUrl) URL.revokeObjectURL(existing.fileUrl);
-            fileName = newFile.name;
-            fileUrl = URL.createObjectURL(newFile);
+        const title = document.getElementById("n_title").value.trim();
+        const type = document.getElementById("n_type").value;
+        const description = document.getElementById("n_description").value.trim();
+
+        const fileInput = document.getElementById("n_file");
+
+        let attachment = existing ? existing.attachment : "";
+
+        if (fileInput.files.length) {
+            attachment = fileInput.files[0].name;
         }
 
-        if (isEdit) {
-            Object.assign(existing, { title, type, description, fileName, fileUrl });
-            showToast('Notice updated');
-        } else {
-            notices.unshift({
-                id: uid(notices), title, type, description, fileName, fileUrl,
-                published: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-            });
-            showToast('Notice published');
+        const noticeData = {
+            title,
+            type,
+            description,
+            attachment,
+            publishedDate: existing
+                ? existing.publishedDate
+                : new Date().toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                })
+        };
+
+        try {
+
+            if (isEdit) {
+
+                await fetch(`${NOTICE_API}/${existing._id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(noticeData)
+                });
+
+                showToast("Notice updated");
+
+            } else {
+
+                await fetch(NOTICE_API, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(noticeData)
+                });
+
+                showToast("Notice published");
+
+            }
+
+            await fetchNotices();
+
+        } catch (err) {
+            console.error(err);
+            showToast("Failed to save notice");
         }
-        renderNotices();
+
     });
+
 }
+
 document.getElementById('addNoticeBtn').addEventListener('click', () => openNoticeModal(null));
 
 /* Create album (with optional initial files) */
@@ -1443,10 +1480,21 @@ async function fetchDonation() {
 
 }
 
+async function fetchNotices() {
+    try {
+        const res = await fetch(NOTICE_API);
+        notices = await res.json();
+        renderNotices();
+    } catch (err) {
+        console.error(err);
+        showToast("Failed to load notices");
+    }
+}
+
 fetchProjects();
 fetchMembers();
 renderGeneralMembers();
-renderNotices();
+fetchNotices();
 fetchGallery();
 renderAdminUsers();
 fetchDonation();
