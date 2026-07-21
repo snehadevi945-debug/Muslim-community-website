@@ -177,42 +177,96 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightbox = document.getElementById('media-lightbox');
     const lightboxContent = lightbox ? lightbox.querySelector('.lightbox-content') : null;
     const lightboxCaption = lightbox ? lightbox.querySelector('.lightbox-caption') : null;
-    const mediaCards = document.querySelectorAll('.media-card');
 
-    mediaCards.forEach(card => {
-        card.addEventListener('click', () => {
-            if (!lightbox) return;
+    const attachLightboxListeners = () => {
+        const mediaCards = document.querySelectorAll('.media-card');
+        mediaCards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (!lightbox) return;
 
-            const type = card.getAttribute('data-type');
-            const src = card.getAttribute('data-src');
-            const title = card.querySelector('.media-card-title') ? card.querySelector('.media-card-title').textContent : '';
-            const desc = card.querySelector('.media-card-desc') ? card.querySelector('.media-card-desc').textContent : '';
+                const type = card.getAttribute('data-type');
+                const src = card.getAttribute('data-src');
+                const title = card.querySelector('.media-card-title') ? card.querySelector('.media-card-title').textContent : '';
+                const desc = card.querySelector('.media-card-desc') ? card.querySelector('.media-card-desc').textContent : '';
 
-            // Clear previous content
-            lightboxContent.innerHTML = '';
+                lightboxContent.innerHTML = '';
 
-            if (type === 'video') {
-                const video = document.createElement('video');
-                video.src = src;
-                video.controls = true;
-                video.autoplay = true;
-                video.style.width = '100%';
-                lightboxContent.appendChild(video);
-            } else {
-                const img = document.createElement('img');
-                img.src = src;
-                img.alt = title;
-                lightboxContent.appendChild(img);
-            }
+                if (type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = src;
+                    video.controls = true;
+                    video.autoplay = true;
+                    video.style.width = '100%';
+                    lightboxContent.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = title;
+                    lightboxContent.appendChild(img);
+                }
 
-            if (lightboxCaption) {
-                lightboxCaption.innerHTML = `<strong>${title}</strong> — ${desc}`;
-            }
+                if (lightboxCaption) {
+                    lightboxCaption.innerHTML = `<strong>${title}</strong> — ${desc}`;
+                }
 
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
         });
-    });
+    };
+
+    // Fetch Gallery Data Dynamically
+    const fetchGallery = async () => {
+        const galleryContainer = document.getElementById('media-gallery');
+        if (!galleryContainer) {
+            // Not on about page, but maybe there are static cards somewhere else
+            attachLightboxListeners();
+            return; 
+        }
+
+        try {
+            const response = await fetch('http://localhost:3000/api/gallery');
+            if (!response.ok) throw new Error('Failed to fetch gallery');
+            const items = await response.json();
+            
+            galleryContainer.innerHTML = '';
+            
+            if (items.length === 0) {
+                galleryContainer.innerHTML = '<div style="text-align:center; padding:40px; color:var(--color-text-light); grid-column: 1/-1;">No media items found.</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const isVideo = item.type === 'video';
+                const iconSvg = isVideo 
+                    ? `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`
+                    : `<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+                
+                const playIndicator = isVideo 
+                    ? `<div class="video-play-indicator"><svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div>`
+                    : '';
+
+                galleryContainer.innerHTML += `
+                    <div class="media-card ${isVideo ? 'video-card' : ''}" data-type="${item.type || 'photo'}" data-src="${item.imageUrl || ''}" role="button" tabindex="0">
+                        <img src="${item.imageUrl || 'assets/hero_bg.png'}" alt="${item.title}" class="media-card-img" loading="lazy">
+                        ${playIndicator}
+                        <div class="media-overlay">
+                            <div class="media-icon">${iconSvg}</div>
+                            <div class="media-card-title">${item.title}</div>
+                            <div class="media-card-desc">${item.description || ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            attachLightboxListeners();
+        } catch (error) {
+            console.error('Error fetching gallery:', error);
+            galleryContainer.innerHTML = '<div style="text-align:center; padding:40px; color:#ff6b6b; grid-column: 1/-1;">Error loading gallery.</div>';
+        }
+    };
+    
+    fetchGallery();
 
     // ----------------------------------
     // 7. Scroll-triggered Fade-in for Media Cards
@@ -237,5 +291,45 @@ document.addEventListener('DOMContentLoaded', () => {
             fadeObserver.observe(el);
         });
     }
+
+    // ----------------------------------
+    // 8. Notices Fetching
+    // ----------------------------------
+    const fetchNotices = async () => {
+        const noticesContainer = document.getElementById('notices-container');
+        if (!noticesContainer) return;
+        
+        try {
+            const response = await fetch('http://localhost:3000/api/notices');
+            if (!response.ok) throw new Error('Failed to fetch notices');
+            const notices = await response.json();
+            
+            if (notices.length === 0) {
+                noticesContainer.style.display = 'none';
+                return;
+            }
+            
+            // Generate marquee or list of notices
+            let noticesHtml = notices.map(notice => {
+                return `<span style="margin-right: 50px;"><strong>${notice.title}:</strong> ${notice.content} 
+                ${notice.date ? `(Valid until ${new Date(notice.date).toLocaleDateString()})` : ''}</span>`;
+            }).join('');
+            
+            noticesContainer.innerHTML = `
+                <div style="background-color: var(--color-green); color: white; padding: 10px; overflow: hidden; display: flex; align-items: center;">
+                    <strong style="white-space: nowrap; margin-right: 15px; padding-right: 15px; border-right: 1px solid rgba(255,255,255,0.3);">📢 Latest Notices</strong>
+                    <marquee behavior="scroll" direction="left" style="flex-grow: 1;">
+                        ${noticesHtml}
+                    </marquee>
+                </div>
+            `;
+            noticesContainer.style.display = 'block';
+        } catch (error) {
+            console.error('Error fetching notices:', error);
+            noticesContainer.style.display = 'none';
+        }
+    };
+    
+    fetchNotices();
 
 });
