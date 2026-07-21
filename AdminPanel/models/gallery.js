@@ -1,4 +1,3 @@
-console.log("Gallery model loaded");
 const mongoose = require("mongoose");
 
 const gallerySchema = new mongoose.Schema(

@@ -1,3 +1,10 @@
+const dns = require("dns");
+
+if (process.env.NODE_ENV !== "production") {
+    dns.setServers(["8.8.8.8", "8.8.4.4"]);
+}
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,11 +15,9 @@ const Project = require("./AdminPanel/models/projects");
 const Member = require("./AdminPanel/models/members");
 const Gallery = require("./AdminPanel/models/gallery");
 const Admin = require("./AdminPanel/models/Admin");
+const Donation = require("./AdminPanel/models/donation");
 
 const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
-
-console.log(Gallery);
-const Donation = require("./AdminPanel/models/donation");
 
 const app = express();
 app.use(cors());
@@ -23,13 +28,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect MongoDB
-mongoose.connect("mongodb://127.0.0.1:27017/muslim_community")
-.then(() => {
-    console.log("MongoDB Connected");
-})
-.catch((err) => {
-    console.log(err);
-});
+mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log("Connected to Atlas"))
+.catch(err => console.log(err));
 
 // Home Route
 app.get("/", (req, res) => {
