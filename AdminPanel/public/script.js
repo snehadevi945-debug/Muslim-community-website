@@ -49,7 +49,7 @@ let projects = [];
 const API_URL = "http://localhost:3000/api/projects";
 const MEMBER_API = "http://localhost:3000/api/members";
 const GALLERY_API = "http://localhost:3000/api/gallery";
-const DONATION_API = "http://localhost:3000/api/donations";
+const DONATION_API = "http://localhost:3000/api/settings/donation";
 const NOTICE_API = "http://localhost:3000/api/notices";
 const ADMIN_API = "http://localhost:3000/api/admin";
 
@@ -1303,170 +1303,85 @@ function donationRow(label, value, fullRow) {
 }
  
 function renderDonationSummary() {
-
     const qrBox = document.getElementById("donationSummaryQr");
+    if (qrBox) {
+        qrBox.innerHTML = donationDetails.qrCodeUrl
+            ? `<img src="${donationDetails.qrCodeUrl}" alt="Donation QR">`
+            : "";
+    }
 
-    qrBox.innerHTML = donationDetails.qrImage
-        ? `<img src="${donationDetails.qrImage}" alt="Donation QR">`
-        : "";
-
-    document.getElementById("donationSummaryList").innerHTML = [
-
-        donationRow("UPI ID", donationDetails.upiId),
-
-        donationRow("Mobile number", donationDetails.mobileNumber),
-
-        donationRow("Account name", donationDetails.accountName),
-
-        donationRow("Account number", donationDetails.accountNumber),
-
-        donationRow("IFSC", donationDetails.ifsc)
-
-    ].join("");
-
+    const listEl = document.getElementById("donationSummaryList");
+    if (listEl) {
+        listEl.innerHTML = [
+            donationRow("Account Name", donationDetails.accountName),
+            donationRow("Account Number", donationDetails.accountNumber),
+            donationRow("IFSC Code", donationDetails.ifscCode),
+            donationRow("QR Code URL", donationDetails.qrCodeUrl)
+        ].join("");
+    }
 }
+
 function openDonationModal() {
+    const accName = document.getElementById("accountName");
+    const accNum = document.getElementById("accountNumber");
+    const ifsc = document.getElementById("ifscCode");
+    const qrUrl = document.getElementById("qrCodeUrl");
 
-    document.getElementById("upiId").value =
-        donationDetails.upiId || "";
+    if (accName) accName.value = donationDetails.accountName || "";
+    if (accNum) accNum.value = donationDetails.accountNumber || "";
+    if (ifsc) ifsc.value = donationDetails.ifscCode || "";
+    if (qrUrl) qrUrl.value = donationDetails.qrCodeUrl || "";
 
-    document.getElementById("mobileNumber").value =
-        donationDetails.mobileNumber || "";
-
-    document.getElementById("accountName").value =
-        donationDetails.accountName || "";
-
-    document.getElementById("accountNumber").value =
-        donationDetails.accountNumber || "";
-
-    document.getElementById("ifscCode").value =
-        donationDetails.ifsc || "";
-
-    pendingQrUrl = donationDetails.qrImage || "";
-
-    const qrPreview = document.getElementById("qrPreviewLeft");
-
-    qrPreview.innerHTML = donationDetails.qrImage
-        ? `<img src="${donationDetails.qrImage}" alt="Donation QR">`
-        : "";
-
-    document
-        .getElementById("donationModalOverlay")
-        .classList.add("active");
-
+    document.getElementById("donationModalOverlay").classList.add("active");
 }
 
 function closeDonationModal() {
     document.getElementById('donationModalOverlay').classList.remove('active');
 }
 
-document.getElementById('editDonationBtn').addEventListener('click', openDonationModal);
-document.getElementById('donationModalCloseBtn').addEventListener('click', closeDonationModal);
-document.getElementById('donationModalCancelBtn').addEventListener('click', closeDonationModal);
-document.getElementById('donationModalOverlay').addEventListener('click', e => {
-    if (e.target.id === 'donationModalOverlay') closeDonationModal();
-});
+if (document.getElementById('editDonationBtn')) {
+    document.getElementById('editDonationBtn').addEventListener('click', openDonationModal);
+}
+if (document.getElementById('donationModalCloseBtn')) {
+    document.getElementById('donationModalCloseBtn').addEventListener('click', closeDonationModal);
+}
+if (document.getElementById('donationModalCancelBtn')) {
+    document.getElementById('donationModalCancelBtn').addEventListener('click', closeDonationModal);
+}
+if (document.getElementById('donationModalOverlay')) {
+    document.getElementById('donationModalOverlay').addEventListener('click', e => {
+        if (e.target.id === 'donationModalOverlay') closeDonationModal();
+    });
+}
 
-document.getElementById('replaceQrBtnLeft').addEventListener('click', () => {
-    document.getElementById('qrFileInputLeft').click();
-});
-document.getElementById('qrFileInputLeft').addEventListener('change', e => {
-    if (!e.target.files.length) return;
-    pendingQrUrl = URL.createObjectURL(e.target.files[0]);
-    document.getElementById('qrPreviewLeft').innerHTML = `<img src="${pendingQrUrl}" alt="Donation QR code">`;
-});
+if (document.getElementById("saveDonationBtn")) {
+    document.getElementById("saveDonationBtn").addEventListener("click", async () => {
+        const data = {
+            accountName: document.getElementById("accountName").value.trim(),
+            accountNumber: document.getElementById("accountNumber").value.trim(),
+            ifscCode: document.getElementById("ifscCode").value.trim(),
+            qrCodeUrl: document.getElementById("qrCodeUrl").value.trim()
+        };
 
-document.getElementById("saveDonationBtn").addEventListener("click", async () => {
-
-    const data = {
-
-        qrImage: pendingQrUrl,
-
-        upiId: document.getElementById("upiId").value.trim(),
-
-        mobileNumber: document.getElementById("mobileNumber").value.trim(),
-
-        accountName: document.getElementById("accountName").value.trim(),
-
-        accountNumber: document.getElementById("accountNumber").value.trim(),
-
-        ifsc: document.getElementById("ifscCode").value.trim()
-
-    };
-
-    try {
-
-        // ===========================
-        // First time → Create document
-        // ===========================
-
-        if (!donationDetails._id) {
-
+        try {
             const response = await fetch(DONATION_API, {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify(data)
-
-            });
-
-            if (!response.ok) {
-
-                throw new Error("Failed to create donation details");
-
-            }
-
-        }
-
-        // ===========================
-        // Already exists → Update
-        // ===========================
-
-        else {
-
-            const response = await fetch(`${DONATION_API}/${donationDetails._id}`, {
-
                 method: "PUT",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
-
             });
 
-            if (!response.ok) {
+            if (!response.ok) throw new Error("Failed to save donation details");
 
-                throw new Error("Failed to update donation details");
-
-            }
-
+            donationDetails = await response.json();
+            renderDonationSummary();
+            closeDonationModal();
+            showToast("Donation details saved successfully");
+        } catch (err) {
+            console.error(err);
+            showToast("Failed to save donation details");
         }
-
-        await fetchDonation();
-
-        renderDonationSummary();
-
-        closeDonationModal();
-
-        showToast("Donation details saved");
-
-    }
-
-    catch (err) {
-
-        console.error(err);
-
-        showToast("Failed to save donation details");
-
-    }
-
-});
+    });
+}
 
 /* ---------- Init ---------- */
 async function fetchProjects() {

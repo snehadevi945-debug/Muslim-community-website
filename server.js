@@ -16,8 +16,10 @@ const Member = require("./AdminPanel/models/members");
 const Gallery = require("./AdminPanel/models/gallery");
 const Admin = require("./AdminPanel/models/Admin");
 const Donation = require("./AdminPanel/models/donation");
+const Settings = require("./AdminPanel/models/Settings");
 
 const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
+console.log(JWT_SECRET);
 
 const app = express();
 app.use(cors());
@@ -27,10 +29,10 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect MongoDB
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("Connected to Atlas"))
-.catch(err => console.log(err));
+// // Connect MongoDB
+// mongoose.connect(process.env.MONGO_URI)
+// .then(() => console.log("Connected to Atlas"))
+// .catch(err => console.log(err));
 
 // Home Route
 app.get("/", (req, res) => {
@@ -488,3 +490,40 @@ app.post("/api/admin", async (req, res) => {
     }
 
 });
+
+// --- Settings Routes (Donation Details) ---
+app.get("/api/settings/donation", async (req, res) => {
+    try {
+        let donationSetting = await Settings.findOne({ key: "donation_details" });
+        if (!donationSetting) {
+            donationSetting = {
+                key: "donation_details",
+                value: {
+                    accountName: "Muslim Community Welfare Trust",
+                    accountNumber: "987654321012",
+                    ifscCode: "SBIN0001234",
+                    qrCodeUrl: "assets/hero_bg.png"
+                }
+            };
+        }
+        res.json(donationSetting.value);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.put("/api/settings/donation", async (req, res) => {
+    try {
+        const { accountName, accountNumber, ifscCode, qrCodeUrl } = req.body;
+        const updatedSetting = await Settings.findOneAndUpdate(
+            { key: "donation_details" },
+            { key: "donation_details", value: { accountName, accountNumber, ifscCode, qrCodeUrl } },
+            { new: true, upsert: true }
+        );
+        res.json(updatedSetting.value);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

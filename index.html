@@ -47,6 +47,20 @@
             </nav>
 
             <div class="header-actions">
+                <div class="notification-wrapper">
+                    <button class="notification-bell-btn" id="notificationBellBtn" aria-label="Notifications">
+                        🔔
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <span>Announcements &amp; Events</span>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div style="padding: 16px; text-align: center; color: #888;">Loading notifications...</div>
+                        </div>
+                    </div>
+                </div>
                 <a href="AdminPanel/public/login.html" class="btn btn-admin-login" id="header-admin-btn">
                     <svg style="width:18px;height:18px;margin-right:6px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                     Admin Login
@@ -278,11 +292,10 @@
                 <div class="footer-nav">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
-                        <li><a href="#hero">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#services">Programs & Services</a></li>
-                        <li><a href="#progress">Work Progress</a></li>
-                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="work.html">Work Progress</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
                     </ul>
                 </div>
 
@@ -320,41 +333,33 @@
         <div class="modal-card">
             <button class="modal-close" aria-label="Close modal">&times;</button>
             <h3 class="modal-title">Make a Contribution</h3>
-            <p class="modal-desc">Your charity (Sadaqah) supports education, food drives, and community care programs.</p>
+            <p class="modal-desc">Scan the QR Code or transfer directly using our official bank details below. JazakAllahu Khairan for your generosity.</p>
             
-            <form class="modal-form" id="donate-form" onsubmit="event.preventDefault(); alert('JazakAllahu Khairan! Thank you for your donation.'); document.getElementById('donate-modal').classList.remove('active');">
-                <div class="form-group">
-                    <label>Select Amount</label>
-                    <div class="amount-presets">
-                        <button type="button" class="preset-btn active" data-val="50">$50</button>
-                        <button type="button" class="preset-btn" data-val="100">$100</button>
-                        <button type="button" class="preset-btn" data-val="250">$250</button>
-                        <button type="button" class="preset-btn" data-val="500">$500</button>
-                        <button type="button" class="preset-btn" data-val="custom">Custom</button>
+            <div class="bank-details-card">
+                <div class="qr-container" id="donate-qr-container">
+                    <img src="assets/hero_bg.png" alt="Donation QR Code" class="qr-code-img" id="donate-qr-img">
+                </div>
+                <div class="bank-info-list">
+                    <div class="bank-info-item">
+                        <span class="bank-info-label">Account Name</span>
+                        <span class="bank-info-value" id="donate-account-name">Loading...</span>
                     </div>
-                    <input type="number" id="custom-amount" class="form-input amount-input" placeholder="Enter custom amount ($)" min="5" value="50" style="display:none;">
+                    <div class="bank-info-item">
+                        <span class="bank-info-label">Account Number</span>
+                        <span class="bank-info-value">
+                            <span id="donate-account-number">Loading...</span>
+                            <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('donate-account-number').innerText); alert('Copied Account Number!');">Copy</button>
+                        </span>
+                    </div>
+                    <div class="bank-info-item">
+                        <span class="bank-info-label">IFSC Code</span>
+                        <span class="bank-info-value">
+                            <span id="donate-ifsc-code">Loading...</span>
+                            <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('donate-ifsc-code').innerText); alert('Copied IFSC Code!');">Copy</button>
+                        </span>
+                    </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="donate-name">Full Name</label>
-                    <input type="text" id="donate-name" class="form-input" placeholder="Your Name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="donate-email">Email Address</label>
-                    <input type="email" id="donate-email" class="form-input" placeholder="email@example.com" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="donate-type">Donation Frequency</label>
-                    <select id="donate-type" class="form-input">
-                        <option value="one-time">One-time donation</option>
-                        <option value="monthly">Monthly recurring</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-solid-green w-full">Complete Donation</button>
-            </form>
+            </div>
         </div>
     </div>
 

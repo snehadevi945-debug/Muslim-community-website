@@ -293,43 +293,107 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ----------------------------------
-    // 8. Notices Fetching
+    // 8. Notices & Notification Bell
     // ----------------------------------
+    const notificationBellBtn = document.getElementById('notificationBellBtn');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationList = document.getElementById('notificationList');
+
+    if (notificationBellBtn && notificationDropdown) {
+        notificationBellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!notificationDropdown.contains(e.target) && !notificationBellBtn.contains(e.target)) {
+                notificationDropdown.classList.remove('active');
+            }
+        });
+    }
+
     const fetchNotices = async () => {
         const noticesContainer = document.getElementById('notices-container');
-        if (!noticesContainer) return;
         
         try {
             const response = await fetch('http://localhost:3000/api/notices');
             if (!response.ok) throw new Error('Failed to fetch notices');
             const notices = await response.json();
             
-            if (notices.length === 0) {
-                noticesContainer.style.display = 'none';
-                return;
+            // 1. Update Notification Bell
+            if (notificationList) {
+                if (notices.length === 0) {
+                    notificationList.innerHTML = '<div style="padding: 16px; text-align: center; color: #888;">No new notices</div>';
+                    if (notificationBadge) notificationBadge.style.display = 'none';
+                } else {
+                    if (notificationBadge) {
+                        notificationBadge.textContent = notices.length;
+                        notificationBadge.style.display = 'flex';
+                    }
+                    notificationList.innerHTML = notices.map(n => `
+                        <div class="notification-item">
+                            <div class="notification-title">${n.title}</div>
+                            <div class="notification-desc">${n.description || n.type || ''}</div>
+                            <div class="notification-date">${n.publishedDate || ''}</div>
+                        </div>
+                    `).join('');
+                }
             }
-            
-            // Generate marquee or list of notices
-            let noticesHtml = notices.map(notice => {
-                return `<span style="margin-right: 50px;"><strong>${notice.title}:</strong> ${notice.content} 
-                ${notice.date ? `(Valid until ${new Date(notice.date).toLocaleDateString()})` : ''}</span>`;
-            }).join('');
-            
-            noticesContainer.innerHTML = `
-                <div style="background-color: var(--color-green); color: white; padding: 10px; overflow: hidden; display: flex; align-items: center;">
-                    <strong style="white-space: nowrap; margin-right: 15px; padding-right: 15px; border-right: 1px solid rgba(255,255,255,0.3);">📢 Latest Notices</strong>
-                    <marquee behavior="scroll" direction="left" style="flex-grow: 1;">
-                        ${noticesHtml}
-                    </marquee>
-                </div>
-            `;
-            noticesContainer.style.display = 'block';
+
+            // 2. Update Home Banner (if container present)
+            if (noticesContainer) {
+                if (notices.length === 0) {
+                    noticesContainer.style.display = 'none';
+                    return;
+                }
+                
+                let noticesHtml = notices.map(notice => {
+                    return `<span style="margin-right: 50px;"><strong>${notice.title}:</strong> ${notice.description || ''} 
+                    ${notice.publishedDate ? `(${notice.publishedDate})` : ''}</span>`;
+                }).join('');
+                
+                noticesContainer.innerHTML = `
+                    <div style="background-color: var(--color-primary); color: white; padding: 10px; overflow: hidden; display: flex; align-items: center;">
+                        <strong style="white-space: nowrap; margin-right: 15px; padding-right: 15px; border-right: 1px solid rgba(255,255,255,0.3);">📢 Latest Announcements</strong>
+                        <marquee behavior="scroll" direction="left" style="flex-grow: 1;">
+                            ${noticesHtml}
+                        </marquee>
+                    </div>
+                `;
+                noticesContainer.style.display = 'block';
+            }
         } catch (error) {
             console.error('Error fetching notices:', error);
-            noticesContainer.style.display = 'none';
+            if (noticesContainer) noticesContainer.style.display = 'none';
         }
     };
     
     fetchNotices();
+
+    // ----------------------------------
+    // 9. Dynamic Donation Bank Details
+    // ----------------------------------
+    const fetchDonationDetails = async () => {
+        try {
+            const response = await fetch('http://localhost:3000/api/settings/donation');
+            if (!response.ok) throw new Error('Failed to fetch donation details');
+            const data = await response.json();
+
+            const qrImg = document.getElementById('donate-qr-img');
+            const accName = document.getElementById('donate-account-name');
+            const accNum = document.getElementById('donate-account-number');
+            const ifsc = document.getElementById('donate-ifsc-code');
+
+            if (qrImg && data.qrCodeUrl) qrImg.src = data.qrCodeUrl;
+            if (accName) accName.textContent = data.accountName || 'N/A';
+            if (accNum) accNum.textContent = data.accountNumber || 'N/A';
+            if (ifsc) ifsc.textContent = data.ifscCode || 'N/A';
+        } catch (error) {
+            console.error('Error fetching donation details:', error);
+        }
+    };
+
+    fetchDonationDetails();
 
 });
