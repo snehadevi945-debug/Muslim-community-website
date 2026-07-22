@@ -10,12 +10,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Notice = require("./AdminPanel/models/Notice");
-const Project = require("./AdminPanel/models/projects");
-const Member = require("./AdminPanel/models/members");
-const Gallery = require("./AdminPanel/models/gallery");
-const Admin = require("./AdminPanel/models/Admin");
-const Donation = require("./AdminPanel/models/donation");
+const Notice = require("./models/Notice");
+const Project = require("./models/projects");
+const Member = require("./models/members");
+const Gallery = require("./models/gallery");
+const Admin = require("./models/Admin");
+const Donation = require("./models/donation");
 
 const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
 
