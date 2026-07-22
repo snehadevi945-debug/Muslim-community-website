@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!noticesContainer) return;
         
         try {
-            const response = await fetch('http://localhost:3000/api/notices');
+            const response = await fetch('https://muslim-community.onrender.com/api/notices');
             if (!response.ok) throw new Error('Failed to fetch notices');
             const notices = await response.json();
             
