@@ -20,7 +20,10 @@ const Donation = require("./models/donation");
 const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "https://your-frontend.vercel.app",
+    credentials: true
+}));
 app.use(express.json());
 const PORT = 3000;
 
@@ -170,7 +173,7 @@ app.get("/api/notices", async (req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at ${PORT}`);
 });
 
 //Projects
