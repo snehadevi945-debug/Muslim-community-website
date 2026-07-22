@@ -21,7 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_
 
 const app = express();
 app.use(cors({
-    origin: "https://your-frontend.vercel.app",
+    origin: "https://muslim-community-website.vercel.app/",
     credentials: true
 }));
 app.use(express.json());
