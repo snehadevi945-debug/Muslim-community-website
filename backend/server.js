@@ -20,14 +20,11 @@ const Donation = require("./models/donation");
 const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
 
 const app = express();
-app.use(cors({
-    origin: "https://muslim-community-website.vercel.app/",
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 const PORT = 3000;
 
-app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 // Connect MongoDB
