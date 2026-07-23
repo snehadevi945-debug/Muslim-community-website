@@ -142,7 +142,7 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3000';
+        const API_BASE = 'https://muslim-community.onrender.com/';
 
         // Password toggles
         document.getElementById('togglePassword1').addEventListener('click', () => {
@@ -192,7 +192,7 @@
             btn.innerHTML = '<span class="spinner"></span> Creating account...';
 
             try {
-                const res = await fetch(`${API_BASE}/api/admin/signup`, {
+                const res = await fetch(`${API_BASE}api/admin/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password })
