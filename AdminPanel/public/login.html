@@ -100,12 +100,12 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:3000';
+        const API_BASE = 'https://muslim-community.onrender.com/';
 
         // Check if already logged in
         const token = localStorage.getItem('adminToken');
         if (token) {
-            fetch(`${API_BASE}/api/admin/verify`, {
+            fetch(`${API_BASE}api/admin/verify`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             .then(res => {
@@ -147,7 +147,7 @@
             btn.innerHTML = '<span class="spinner"></span> Signing in...';
 
             try {
-                const res = await fetch(`${API_BASE}/api/admin/login`, {
+                const res = await fetch(`${API_BASE}api/admin/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })

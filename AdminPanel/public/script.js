@@ -9,7 +9,7 @@ const token = localStorage.getItem("adminToken");
 if (!token) {
     window.location.href = "login.html";
 } else {
-    fetch("http://localhost:3000/api/admin/verify", {
+    fetch("https://muslim-community.onrender.com/api/admin/verify", {
         headers: { "Authorization": `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -46,12 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /* ---------- Sample data ---------- */
 let projects = [];
-const API_URL = "http://localhost:3000/api/projects";
-const MEMBER_API = "http://localhost:3000/api/members";
-const GALLERY_API = "http://localhost:3000/api/gallery";
-const DONATION_API = "http://localhost:3000/api/settings/donation";
-const NOTICE_API = "http://localhost:3000/api/notices";
-const ADMIN_API = "http://localhost:3000/api/admin";
+const API_URL = "https://muslim-community.onrender.com/api/projects";
+const MEMBER_API = "https://muslim-community.onrender.com/api/members";
+const GALLERY_API = "https://muslim-community.onrender.com/api/gallery";
+const DONATION_API = "https://muslim-community.onrender.com/api/settings/donation";
+const NOTICE_API = "https://muslim-community.onrender.com/api/notices";
+const ADMIN_API = "https://muslim-community.onrender.com/api/admin";
 
 
 let execMembers = [];

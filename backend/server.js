@@ -10,12 +10,12 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Notice = require("./AdminPanel/models/Notice");
-const Project = require("./AdminPanel/models/projects");
-const Member = require("./AdminPanel/models/members");
-const Gallery = require("./AdminPanel/models/gallery");
-const Admin = require("./AdminPanel/models/Admin");
-const Donation = require("./AdminPanel/models/donation");
+const Notice = require("./models/Notice");
+const Project = require("./models/projects");
+const Member = require("./models/members");
+const Gallery = require("./models/gallery");
+const Admin = require("./models/Admin");
+const Donation = require("./models/donation");
 const Settings = require("./AdminPanel/models/Settings");
 
 const JWT_SECRET = process.env.JWT_SECRET || "muslim_community_super_secret_key_2026";
@@ -26,7 +26,7 @@ app.use(cors());
 app.use(express.json());
 const PORT = 3000;
 
-app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 
 // // Connect MongoDB
@@ -172,7 +172,7 @@ app.get("/api/notices", async (req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at ${PORT}`);
 });
 
 //Projects
