@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-              const response = await fetch('https://muslim-community.onrender.com/api/gallery');
+              const response = await fetch('https://muslim-community-website.onrender.com/api/gallery');
             if (!response.ok) throw new Error('Failed to fetch gallery');
             const items = await response.json();
             
@@ -317,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const noticesContainer = document.getElementById('notices-container');
         
         try {
-            const response = await fetch('https://muslim-community.onrender.com/api/notices');
+            const response = await fetch('https://muslim-community-website.onrender.com/api/notices');
             if (!response.ok) throw new Error('Failed to fetch notices');
             const notices = await response.json();
             
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchDonationDetails = async () => {
         try {
-            const response = await fetch('https://muslim-community.onrender.com/api/settings/donation');
+            const response = await fetch('https://muslim-community-website.onrender.com/api/settings/donation');
             if (!response.ok) throw new Error('Failed to fetch donation details');
             const data = await response.json();
 

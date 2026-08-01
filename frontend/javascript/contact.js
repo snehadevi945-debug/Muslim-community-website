@@ -43,7 +43,7 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>{
 let members = {};
 let admins = {};
 
-const API_BASE = "https://muslim-community.onrender.com/api";
+const API_BASE = "https://muslim-community-website.onrender.com/api";
 
 async function fetchMembers() {
     try {

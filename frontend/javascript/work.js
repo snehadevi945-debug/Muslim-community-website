@@ -1,7 +1,7 @@
 // =========================
 // FETCH AND RENDER DYNAMIC DATA
 // =========================
-const API_BASE = 'https://muslim-community.onrender.com/api';
+const API_BASE = 'https://muslim-community-website.onrender.com/api';
 
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchProjects();
