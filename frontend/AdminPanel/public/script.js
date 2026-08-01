@@ -1310,8 +1310,7 @@ function renderDonationSummary() {
         listEl.innerHTML = [
             donationRow("Account Name", donationDetails.accountName),
             donationRow("Account Number", donationDetails.accountNumber),
-            donationRow("IFSC Code", donationDetails.ifscCode || donationDetails.ifsc),
-            donationRow("QR Code URL", qrUrl)
+            donationRow("IFSC Code", donationDetails.ifscCode || donationDetails.ifsc)
         ].join("");
     }
 }
@@ -1337,17 +1336,24 @@ function openDonationModal() {
     const accName = document.getElementById("accountName");
     const accNum = document.getElementById("accountNumber");
     const ifsc = document.getElementById("ifscCode");
-    const qrUrl = document.getElementById("qrCodeUrl");
     const qrFile = document.getElementById("qrCodeFile");
     const qrPreview = document.getElementById("qrUploadPreview");
 
     if (accName) accName.value = donationDetails.accountName || "";
     if (accNum) accNum.value = donationDetails.accountNumber || "";
     if (ifsc) ifsc.value = donationDetails.ifscCode || donationDetails.ifsc || "";
-    if (qrUrl) qrUrl.value = donationDetails.qrCodeUrl || donationDetails.qrImage || "";
 
+    pendingQrUrl = donationDetails.qrCodeUrl || donationDetails.qrImage || "";
     if (qrFile) qrFile.value = "";
-    if (qrPreview) qrPreview.style.display = "none";
+    if (qrPreview) {
+        const previewImg = document.getElementById("qrPreviewImg");
+        if (pendingQrUrl && previewImg) {
+            previewImg.src = pendingQrUrl;
+            qrPreview.style.display = "block";
+        } else {
+            qrPreview.style.display = "none";
+        }
+    }
 
     const overlay = document.getElementById("donationModalOverlay");
     if (overlay) overlay.classList.add("active");
@@ -1363,10 +1369,9 @@ if (qrFileInput) {
         reader.onload = function(e) {
             const preview = document.getElementById('qrUploadPreview');
             const previewImg = document.getElementById('qrPreviewImg');
-            const qrUrl = document.getElementById('qrCodeUrl');
             if (previewImg) previewImg.src = e.target.result;
             if (preview) preview.style.display = 'block';
-            if (qrUrl) qrUrl.value = e.target.result;
+            pendingQrUrl = e.target.result;
         };
         reader.readAsDataURL(file);
     });
@@ -1406,13 +1411,12 @@ if (document.getElementById("saveDonationBtn")) {
         const accName = document.getElementById("accountName");
         const accNum = document.getElementById("accountNumber");
         const ifsc = document.getElementById("ifscCode");
-        const qrUrl = document.getElementById("qrCodeUrl");
 
         const data = {
             accountName: accName ? accName.value.trim() : "",
             accountNumber: accNum ? accNum.value.trim() : "",
             ifscCode: ifsc ? ifsc.value.trim() : "",
-            qrCodeUrl: qrUrl ? qrUrl.value.trim() : ""
+            qrCodeUrl: pendingQrUrl || donationDetails.qrCodeUrl || donationDetails.qrImage || ""
         };
 
         try {
