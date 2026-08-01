@@ -59,6 +59,20 @@ function normalizeMemberPayload(body = {}) {
         }
     }
 
+    if (payload.responsibilities && typeof payload.responsibilities === 'string') {
+        payload.responsibilities = payload.responsibilities
+            .split(',')
+            .map(item => item.trim())
+            .filter(Boolean);
+    }
+    if (!Array.isArray(payload.responsibilities)) {
+        payload.responsibilities = payload.responsibilities ? [payload.responsibilities] : [];
+    }
+
+    if (!payload.about && payload.bio) {
+        payload.about = payload.bio;
+    }
+
     return payload;
 }
 
@@ -77,7 +91,7 @@ app.get("/", (req, res) => {
 // --- Auth Routes ---
 app.post("/api/admin/signup", async (req, res) => {
     try {
-        const { name, email, password, phone, photo } = req.body;
+        const { name, email, password, phone, photo, about, responsibilities } = req.body;
         
         // Check if admin already exists
         const existingAdmin = await Admin.findOne({ email });
@@ -94,7 +108,13 @@ app.post("/api/admin/signup", async (req, res) => {
             email,
             password: hashedPassword,
             phone: phone || "",
-            photo: photo || ""
+            photo: photo || "",
+            about: about || "",
+            responsibilities: Array.isArray(responsibilities)
+                ? responsibilities
+                : responsibilities
+                    ? responsibilities.split(',').map(item => item.trim()).filter(Boolean)
+                    : []
         });
         
         await newAdmin.save();
@@ -104,7 +124,9 @@ app.post("/api/admin/signup", async (req, res) => {
                 name: newAdmin.name,
                 email: newAdmin.email,
                 phone: newAdmin.phone || "",
-                photo: newAdmin.photo || ""
+                photo: newAdmin.photo || "",
+                about: newAdmin.about || "",
+                responsibilities: newAdmin.responsibilities || []
             }
         });
     } catch (error) {
@@ -473,7 +495,13 @@ app.put("/api/admin/:id", async (req, res) => {
             email: req.body.email,
             phone: req.body.phone || "",
             photo: req.body.photo || "",
-            role: req.body.role
+            role: req.body.role,
+            about: req.body.about || "",
+            responsibilities: Array.isArray(req.body.responsibilities)
+                ? req.body.responsibilities
+                : req.body.responsibilities
+                    ? req.body.responsibilities.split(',').map(item => item.trim()).filter(Boolean)
+                    : []
         };
 
         if (req.body.password) {
@@ -510,7 +538,7 @@ app.delete("/api/admin/:id", async (req, res) => {
 
 app.post("/api/admin", async (req, res) => {
     try {
-        const { name, email, password, phone, photo, role } = req.body;
+        const { name, email, password, phone, photo, role, about, responsibilities } = req.body;
 
         const existingAdmin = await Admin.findOne({ email });
 
@@ -529,7 +557,13 @@ app.post("/api/admin", async (req, res) => {
             password: hashedPassword,
             phone: phone || "",
             photo: photo || "",
-            role
+            role,
+            about: about || "",
+            responsibilities: Array.isArray(responsibilities)
+                ? responsibilities
+                : responsibilities
+                    ? responsibilities.split(',').map(item => item.trim()).filter(Boolean)
+                    : []
         });
 
         await admin.save();

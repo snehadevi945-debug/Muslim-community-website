@@ -32,6 +32,15 @@ const memberSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    about: {
+        type: String,
+        trim: true,
+        default: ""
+    },
+    responsibilities: {
+        type: [String],
+        default: []
+    },
     memberType: {
         type: String,
         enum: ["EXECUTIVE", "GENERAL"],

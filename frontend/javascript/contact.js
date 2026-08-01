@@ -88,7 +88,12 @@ async function fetchMembers() {
                         <div class="info">
                             <p><span>☎</span> ${member.phone || "Not Available"}</p>
                             <p><span>✉</span> ${member.email || "Not Available"}</p>
-                            <p><span>📅</span> ${member.joining || member.dateOfJoining || "Not Available"}</p>
+                            <p><span>📅</span> ${formatPopupDate(
+    member.joining ||
+    member.dateOfJoining ||
+    member.createdAt ||
+    ""
+)}</p>
                         </div>
                         <button class="profile-btn" data-id="${member._id}" data-type="member">View Profile ></button>
                     </div>
@@ -134,7 +139,12 @@ async function fetchAdmins() {
                         <div class="info">
                             <p><span>☎</span> ${admin.phone || "Not Available"}</p>
                             <p><span>✉</span> ${admin.email || "Not Available"}</p>
-                            <p><span>📅</span> ${admin.joining || admin.dateOfJoining || "Not Available"}</p>
+                            <p><span>📅</span> ${formatPopupDate(
+    admin.joining ||
+    admin.dateOfJoining ||
+    admin.createdAt ||
+    ""
+)}</p>
                         </div>
                         <button class="profile-btn" data-id="${admin._id}" data-type="admin">View Profile ></button>
                     </div>
@@ -155,8 +165,9 @@ const avatar = document.getElementById("popupAvatar");
 const initials = document.getElementById("popupInitials");
 
 const nameText = document.getElementById("popupName");
+const popupRole = document.getElementById("popupRole");
 
-const message = document.getElementById("popupMessage");
+
 
 const about = document.getElementById("popupAbout");
 
@@ -167,6 +178,14 @@ const phone = document.getElementById("popupPhone");
 const email = document.getElementById("popupEmail");
 
 const date = document.getElementById("popupdate");
+
+function formatPopupDate(value) {
+    if (!value) return "Not Available";
+    const d = new Date(value);
+    if (isNaN(d)) return String(value);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
 function attachProfileEvents() {
 
     document.querySelectorAll(".profile-btn").forEach(button => {
@@ -192,22 +211,46 @@ function attachProfileEvents() {
             }
 
             nameText.textContent = displayName;
+            popupRole.textContent = person.role || "Community Member";
 
-            message.textContent = "";
+            
 
-            about.textContent = "";
+            about.textContent = person.about || person.bio || "No profile description available.";
 
             phone.textContent = person.phone || "—";
 
             email.textContent = person.email || "—";
 
-            date.textContent =
+            date.textContent = formatPopupDate(
                 person.joining ||
                 person.dateOfJoining ||
                 person.createdAt ||
-                "";
+                person.createdAt?.toString() ||
+                ""
+            );
 
             responsibilities.innerHTML = "";
+            
+            let responsibilityList = [];
+
+if (Array.isArray(person.responsibilities)) {
+    responsibilityList = person.responsibilities.flatMap(item =>
+        String(item)
+            .split("-")
+            .map(r => r.trim())
+            .filter(Boolean)
+    );
+} else if (person.responsibilities) {
+    responsibilityList = String(person.responsibilities)
+        .split("-")
+        .map(r => r.trim())
+        .filter(Boolean);
+}
+            if (responsibilityList.length === 0) {
+                responsibilities.innerHTML = '<span>No responsibilities assigned.</span>';
+            } else {
+                responsibilities.innerHTML = responsibilityList.map(item => `<span>${item}</span>`).join('');
+            }
 
             overlay.classList.add("active");
 

@@ -420,25 +420,7 @@ body {
     background:#ff4b4b;
 
 }
-.status{
 
-    width:16px;
-
-    height:16px;
-
-    background:#27d44b;
-
-    border:3px solid white;
-
-    border-radius:50%;
-
-    position:absolute;
-
-    bottom:8px;
-
-    right:4px;
-
-}
 .member-title{
 
     font-weight:700;
@@ -691,25 +673,7 @@ padding:92px 18px 18px;
     display:block;
 }
 
-.popup-online{
 
-    width:16px;
-
-    height:16px;
-
-    border-radius:50%;
-
-    background:#2ecc71;
-
-    border:3px solid white;
-
-    position:absolute;
-
-    right:8px;
-
-    bottom:8px;
-
-}
 .member-popup h2{
     margin-top:0;
 
@@ -873,4 +837,11 @@ padding:92px 18px 18px;
     position: absolute;
     bottom: 4px;
     right: 4px;
+}
+@media (max-width: 768px) {
+
+    .community-card {
+        margin-left: 20px;
+    }
+
 }

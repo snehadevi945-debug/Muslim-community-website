@@ -718,6 +718,11 @@ function openMemberModal(existing, kind) {
         ${fieldHtml("Phone", "m_phone", existing ? existing.phone : "")}
         ${fieldHtml("Email", "m_email", existing ? (existing.email || "") : "")}
         ${fieldHtml("Date of joining", "m_joining", existing && (existing.dateOfJoining || existing.joining) ? (existing.dateOfJoining || existing.joining).toString().slice(0,10) : todayIso, "date")}
+        <div class="form-group">
+            <label>About Me</label>
+            <textarea class="form-input" id="m_about" rows="4">${existing ? (existing.about || '') : ''}</textarea>
+        </div>
+        ${fieldHtml("Responsibilities (comma-separated)", "m_responsibilities", existing && existing.responsibilities ? (Array.isArray(existing.responsibilities) ? existing.responsibilities.join(', ') : existing.responsibilities) : "")}
         `,
         async () => {
             const memberType = document.getElementById("m_memberType").value;
@@ -729,6 +734,11 @@ function openMemberModal(existing, kind) {
             const phone = document.getElementById("m_phone").value.trim() || "—";
             const joining = document.getElementById("m_joining").value || todayIso;
             const email = document.getElementById("m_email").value.trim() || "—";
+            const about = document.getElementById("m_about").value.trim();
+            const responsibilitiesRaw = document.getElementById("m_responsibilities").value.trim();
+            const responsibilities = responsibilitiesRaw
+                ? responsibilitiesRaw.split(',').map(item => item.trim()).filter(Boolean)
+                : [];
             const photoInput = document.getElementById("m_photo");
 
             let photo = existing?.photo || "";
@@ -745,7 +755,9 @@ function openMemberModal(existing, kind) {
                 dateOfJoining: joining,
                 joining,
                 photo,
-                memberType
+                memberType,
+                about,
+                responsibilities
             };
 
             try {
@@ -1209,6 +1221,11 @@ function openAdminUserModal(existing) {
                 <option value="SUPER ADMIN" ${existing && existing.role === "SUPER ADMIN" ? "selected" : ""}>SUPER ADMIN</option>
             </select>
         </div>
+        <div class="form-group">
+            <label>About Me</label>
+            <textarea class="form-input" id="a_about" rows="4">${existing ? (existing.about || '') : ''}</textarea>
+        </div>
+        ${fieldHtml("Responsibilities (comma-separated)", "a_responsibilities", existing && existing.responsibilities ? (Array.isArray(existing.responsibilities) ? existing.responsibilities.join(', ') : existing.responsibilities) : "")}
         `,
         async () => {
             const name = document.getElementById("a_name").value.trim();
@@ -1216,6 +1233,11 @@ function openAdminUserModal(existing) {
             const phone = document.getElementById("a_phone").value.trim();
             const password = document.getElementById("a_password").value;
             const role = document.getElementById("a_role").value;
+            const about = document.getElementById("a_about").value.trim();
+            const responsibilitiesRaw = document.getElementById("a_responsibilities").value.trim();
+            const responsibilities = responsibilitiesRaw
+                ? responsibilitiesRaw.split(',').map(item => item.trim()).filter(Boolean)
+                : [];
             const photoInput = document.getElementById("u_photo");
 
             if (!name || !email) {
@@ -1232,7 +1254,7 @@ function openAdminUserModal(existing) {
                 photo = await fileToDataUrl(photoInput.files[0]);
             }
 
-            const payload = { name, email, phone, role, photo };
+            const payload = { name, email, phone, role, photo, about, responsibilities };
             if (password) payload.password = password;
 
             try {
